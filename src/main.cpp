@@ -43,17 +43,12 @@ static const float TEST_W = 101.6f;
 
 using namespace std;
 
-
-#ifdef __linux__
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define WSAGetLastError() (errno)
 #define SOCKET_ERROR (-1)
-#else
-#pragma comment(lib,"ws2_32.lib") //Winsock Library
-#endif
 
 
 cv::Rect findRect(cv::Mat& hsv, cv::Mat& img)
@@ -142,18 +137,6 @@ int main(int argc, char const *argv[]) {
     cout << cv::getBuildInformation();
 
     // start networking
-
-#ifndef __linux__
-  WSADATA wsa;
-  //Initialise winsock
-  printf("\nInitialising Winsock...");
-  if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-  {
-    printf("Failed. Error Code : %d", WSAGetLastError());
-    exit(EXIT_FAILURE);
-  }
-  printf("Initialised.\n");
-#endif
   struct sockaddr_in si_other;
   int s, slen = sizeof(si_other);
 
@@ -170,11 +153,7 @@ int main(int argc, char const *argv[]) {
   memset((char *)&si_other, 0, sizeof(si_other));
   si_other.sin_family = AF_INET;
   si_other.sin_port = htons(PORT);
-#ifndef __linux__
-  si_other.sin_addr.S_un.S_addr = inet_addr(IPADDRESS);
-#else
   inet_aton(IPADDRESS, &si_other.sin_addr);
-#endif
 
     // Open Camera stream
     //camera.open("http://root:password@192.168.0.99/mjpg/video.mjpg"); // Used for IP
@@ -225,7 +204,6 @@ int main(int argc, char const *argv[]) {
     cv::VideoWriter outStream(outFile, CV_FOURCC('M','J','P','G'), 2, cv::Size(CAMSIZE), true );
 #endif
     
-    int count = 0;
     while (1) { 
         if (counter == 0) time(&start);
 

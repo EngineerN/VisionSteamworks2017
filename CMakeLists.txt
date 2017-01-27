@@ -1,8 +1,13 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 project(Vision2016)
 
 SET(EXEC_NAME Vision2016)
 
+# Set Cxx Standard for use.
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set Cuda Static Runtime to be off
 SET(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
 if(COMMAND cmake_policy)
@@ -39,14 +44,26 @@ list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_30,code=sm_35)
 list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_50,code=sm_50)
 list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_50,code=sm_52)
 list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_53,code=sm_53)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11)
+
+
+
+# Check and add warning flags
+set(CLANG_WARNING_FLAGS -Wall -Wextra -pedantic)
+set(GNU_WARNING_FLAGS -Wall -Wextra -pedantic)
+add_compile_options("$<$<CXX_COMPILER_ID:Clang>:${CLANG_WARNING_FLAGS}>")
+add_compile_options("$<$<CXX_COMPILER_ID:GNU>:${GNU_WARNING_FLAGS}>")
+
+# Check and add compile flags
+set(CLANG_COMPILER_FLAGS -O3)
+set(GNU_COMPILER_FLAGS -O3)
+add_compile_options("$<$<CXX_COMPILER_ID:Clang>:${CLANG_COMPILER_FLAGS}>")
+add_compile_options("$<$<CXX_COMPILER_ID:GNU>:${GNU_COMPILER_FLAGS}>")
+
+set(COMPILE_FLAGS -g)
 
 cuda_add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_CU_FOLDER})
 cuda_add_executable(${EXEC_NAME}-test ${SRC_FILES} ${SRC_CU_FOLDER})
-
-SET_TARGET_PROPERTIES(${EXEC_NAME}-test PROPERTIES COMPILE_FLAGS "-DSHOW")
-
-add_definitions(-std=c++11)
+SET_TARGET_PROPERTIES(${EXEC_NAME}-test PROPERTIES ${COMPILE_FLAGS} "-DSHOW")
 
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
 			${OpenCV_LIBRARIES}
@@ -57,5 +74,3 @@ TARGET_LINK_LIBRARIES(${EXEC_NAME}-test
 			${OpenCV_LIBRARIES}
 			${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY}
 			)
-
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3" )
