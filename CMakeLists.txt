@@ -4,7 +4,7 @@ project(Vision2016)
 SET(EXEC_NAME Vision2016)
 
 # Set Cxx Standard for use.
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set Cuda Static Runtime to be off
@@ -17,33 +17,22 @@ endif(COMMAND cmake_policy)
 
 SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
-IF(WIN32) # Windows
-find_package(CUDA 7.0 REQUIRED)
-ELSE() # Linux
-find_package(CUDA 6.5 REQUIRED)
-ENDIF(WIN32)
-find_package(OpenCV 2.4 COMPONENTS core highgui imgproc features2d gpu REQUIRED)
+find_package(OpenCV 2.4 COMPONENTS core highgui imgproc features2d REQUIRED)
 
-include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-link_directories(${CUDA_LIBRARY_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 SET(SRC_FOLDER src)
+SET(INCLUDE_FOLDER include)
 FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/*.cpp")
-FILE(GLOB_RECURSE SRC_CU_FOLDER "${SRC_FOLDER}/*.cu")
+Set(SOURCE ${SRC_FOLDER}/main.cpp ${SRC_FOLDER}/GripPipeline.cpp)
+Set(HEADERS ${INCLUDE_FOLDER}/GripPipeline.h ${INCLUDE_FOLDER}/WQueue.h ${INCLUDE_FOLDER}/CameraThread.h ${INCLUDE_FOLDER}/PipelineThread.h)
 
 
-#list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_20,code=sm_20)
-#list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_20,code=sm_21)
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_30,code=sm_30)
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_30,code=sm_35)
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_50,code=sm_50)
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_50,code=sm_52)
-list(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_53,code=sm_53)
+
 
 
 
@@ -61,16 +50,14 @@ add_compile_options("$<$<CXX_COMPILER_ID:GNU>:${GNU_COMPILER_FLAGS}>")
 
 set(COMPILE_FLAGS -g)
 
-cuda_add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_CU_FOLDER})
-cuda_add_executable(${EXEC_NAME}-test ${SRC_FILES} ${SRC_CU_FOLDER})
+add_executable(${EXEC_NAME} ${SOURCE} ${HEADERS})
+add_executable(${EXEC_NAME}-test ${SOURCE} ${HEADERS})
 SET_TARGET_PROPERTIES(${EXEC_NAME}-test PROPERTIES ${COMPILE_FLAGS} "-DSHOW")
 
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
 			${OpenCV_LIBRARIES}
-			${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY}
 			)
 
 TARGET_LINK_LIBRARIES(${EXEC_NAME}-test
 			${OpenCV_LIBRARIES}
-			${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY}
 			)
