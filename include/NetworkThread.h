@@ -13,20 +13,33 @@
 #include <deque>
 #include "WQueue.h"
 
+/*! 
+ *
+ */
 class NetworkThread{
-  wqueue<std::pair<bool,int>>& m_queue;
-  int device_id;
-  struct sockaddr_in si_other;
-  std::atomic<bool> m_stop;
-  std::thread m_thread;
-  std::deque<std::pair<bool,int>> m_filter_queue;
-  int slen;
-  int s;
-  int m_filter_length;
+  struct sockaddr_in si_other; //!< Network Socket information
+  int slen; //!< Network Socket information
+  int s; //!< Network Socket information
+
+  std::deque<std::pair<bool,int>> m_filter_queue; //!< Filter Queue
+  int m_filter_length; //!< Max queue length
+
+  wqueue<std::pair<bool,int>>& m_queue; //!< Network Queue
+  std::atomic<bool> m_stop; //!< Is the thread stopped?
+  std::thread m_thread; //!< Thread to run operations
 
 public:
+
+  /*! 
+   *  \brief Constructor to initialize Network Thread Class
+   *  \warning Default constructor is not used
+   */
   NetworkThread() = delete;
-  virtual ~NetworkThread(void) {}
+
+  /*! 
+   *  \brief Constructor to initialize Network Thread Class
+   *  \param [in]
+   */
   NetworkThread(wqueue<std::pair<bool,int>>& queue_output, int filter_length, std::string ip_address, int port) : m_queue(queue_output), m_stop(), m_thread() {
     // start networking
     m_filter_length = filter_length;
@@ -46,8 +59,11 @@ public:
     si_other.sin_port = htons(port);
     inet_aton(ip_address.c_str(), &si_other.sin_addr);
   }
+
   void stop() { m_stop = true; m_thread.join(); }
+
   void start() { m_thread = std::thread(&NetworkThread::run, this); }
+
   void run() {
     for (int i = 0;; i++) {
       std::unique_ptr<std::pair<bool,int>> temp = m_queue.remove();
