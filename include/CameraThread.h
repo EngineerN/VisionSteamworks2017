@@ -1,49 +1,76 @@
 #pragma once
+#include "WQueue.h"
+#include <atomic>
+#include <chrono>
+#include <iostream>
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <thread>
-#include <atomic>
-#include <iostream>
-#include <chrono>
 #include <thread>
-#include "WQueue.h"
 
-class CameraThread{
-  wqueue<cv::Mat>& m_queue;
-  int device_id;
-  cv::VideoCapture cap;
-  std::atomic<bool> m_stop;
-  std::thread m_thread;
-  bool is_initialized;
+/*! \brief The Network Thread handles gathers infrormation from the camera
+ */
+class CameraThread {
+  int device_id;        //!< The device id of the camera
+  cv::VideoCapture cap; //!< Interface to collect video frams
+  bool is_initialized;  //!< Is the interface started?
+
+  wqueue<cv::Mat>& m_queue; //!< Queue to dump frame from the camera
+  std::atomic<bool> m_stop; //!< Is the thread stopped?
+  std::thread m_thread;     //!< Thread to run operations
 
 public:
+  /*! \brief Constructor to initialize Camera Thread Class
+   *  \warning Default constructor is not used
+   */
   CameraThread() = delete;
-  virtual ~CameraThread(void) {}
-  CameraThread(wqueue<cv::Mat>& queue, int dev_id) : m_queue(queue), m_stop(), m_thread() {
+
+  /*! \brief Constructor to initialize Camera Thread Class
+   *  \param [in] queue Queue to dump the camera frames to
+   *  \param [in] dev_id Camera id
+   */
+  CameraThread(wqueue<cv::Mat>& queue, int dev_id)
+      : m_queue(queue), m_stop(), m_thread() {
     device_id = dev_id;
-    is_initialized = false;
+    initialize();
   }
-  void stop() { m_stop = true; m_thread.join(); }
+
+  /*! \brief Function to stop the thread
+  */
+  void stop() {
+    m_stop = true;
+    m_thread.join();
+  }
+
+  /*! \brief Function to start the thread
+  */
   void start() { m_thread = std::thread(&CameraThread::run, this); }
+
+private:
+  /*! \brief Function to check if the camera is initialized
+  */
   void initialize() {
-     cap.open(device_id);
-     is_initialized = cap.isOpened();
+    cap.open(device_id);
+    is_initialized = cap.isOpened();
   }
+
+  /*! \brief Function that the thread runs
+  */
   void run() {
     while(!is_initialized) {
       initialize();
     }
-    for (int i = 0;; i++) {
-        cv::Mat frame;
-        cap.read(frame);
-        // check if we succeeded
-        if (frame.empty()) {
-            std::cerr << "ERROR! Blank frame grabbed" << std::endl;
-            break;
-        }
-        m_queue.add(frame);
+    for(int i = 0;; i++) {
+      cv::Mat frame;
+      cap.read(frame);
+      // check if we succeeded
+      if(frame.empty()) {
+        std::cerr << "ERROR! Blank frame grabbed" << std::endl;
+        break;
+      }
+      m_queue.add(frame);
     }
   }
 };

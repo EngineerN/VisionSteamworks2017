@@ -1,0 +1,691 @@
+# Cpp clang format file
+#
+# Selections are derived from llvm formating.
+# Descriptions for format options added to file for later use.
+#
+# Author EngineerN
+
+# Based On Sytle
+# The style used for all options not specifically set in the configuration.
+# This option is supported only in the clang-format configuration (both
+# within -style='{...}' and the .clang-format file).
+# Options: LLVM -- A style complying with the LLVM coding standards
+#          Google -- A style complying with Google’s C++ style guide
+#          Chromium -- A style complying with Chromium’s style guide
+#          Mozilla -- A style complying with Mozilla’s style guide
+#          WebKit -- A style complying with WebKit’s style guide
+# Links: http://llvm.org/docs/CodingStandards.html
+#        https://google.github.io/styleguide/cppguide.html
+#        https://developer.mozilla.org/en-US/docs/Developer_Guide/Coding_Style
+#        http://www.webkit.org/coding/coding-style.html
+#BasedOnStyle: LLVM
+
+# Access Modifier Offset
+#
+# The extra indent or outdent of access modifiers, e.g. public
+#
+# Options: Int
+AccessModifierOffset: -2
+
+# Align After Open Bracket
+#
+# If true, horizontally aligns arguments after an open bracket.
+# This applies to round brackets (parentheses), angle brackets
+# and square brackets.
+#
+# Options: Align -- Align parameters on the open bracket
+#          DontAlign -- Don't align, instead use ContinuationIdentWidth
+#          AlwaysBreak -- Always break after an open bracket,
+#                         if the parameters don't fit on a single line
+AlignAfterOpenBracket: Align
+
+# Align Consecutive Assignments
+#
+# If true, aligns consecutive assignments.
+# This will align the assignment operators of consecutive lines.
+#
+# Options: Boolean
+AlignConsecutiveAssignments: false
+
+# Align Consecutive Declarations
+#
+# If true, aligns consecutive declarations.
+# This will align the delcaration names of consecutive lines.
+#
+# Options: Boolean
+AlignConsecutiveDeclarations: false
+
+# Align Escaped Newline Left
+#
+# If true, aligns escaped newlines as far left as possible.
+# Otherwise puts them into the right-most column.
+#
+# Options: Boolean
+AlignEscapedNewlinesLeft: false
+
+# Align Operands
+#
+# If true, horizontally align operands of binary and ternary expressions.
+# Specifically, this aligns operands of a single expression that needs to be
+# split over multiple lines.
+#
+# Options: Boolean
+AlignOperands: true
+
+# Align Trailing Comments
+#
+# If true, aligns trailing comments.
+#
+# Options: Boolean
+AlignTrailingComments: true
+
+# Allow All Parameters of Declaration On Next Line
+#
+# Allow putting all parameters of a function declaration onto the next line
+# even if BinPackParameters is false.
+#
+# Options: Boolean
+AllowAllParametersOfDeclarationOnNextLine: true
+
+# Allow Short Blocks On A Single Line
+#
+# Allows contracting simple braced statements to a single line.
+# E.g., this allows if (a) { return; } to be put on a single line.
+#
+# Options: Boolean
+AllowShortBlocksOnASingleLine: true
+
+# Allow Short Case Lables On A Single Line
+#
+# If true, short case labels will be contracted to a single line.
+#
+# Options: Boolean
+AllowShortCaseLabelsOnASingleLine: false
+
+# Allow Short Functions On A Single Line
+#
+# Dependent on the value, int f() { return 0; } can be put on a single line.
+#
+# Options: None -- Never merge functions into a single line.
+#          Empty -- Only merge empty functions.
+#          Inline -- Only merge functions defined inside a class. Implies 
+#                    “empty”.
+#          All -- Merge all functions fitting on a single line.
+AllowShortFunctionsOnASingleLine: All
+
+# Allow Short If Statements On A Single Line
+# If true, if (a) return; can be put on a single line.
+# Options: Boolean
+AllowShortIfStatementsOnASingleLine: false
+
+# Allow Short Loops On A Single Line
+#
+# If true, while (true) continue; can be put on a single line.
+#
+# Options: Boolean
+AllowShortLoopsOnASingleLine: false
+
+# Always Break After Definition Return Type
+#
+# The function definition return type breaking style to use. This option is
+# deprecated and is retained for backwards compatibility.
+#
+# Options: None -- Break after return type automatically.
+#                  PenaltyReturnTypeOnItsOwnLine is taken into account.
+#          All -- Always break after the return type.
+#          TopLevel --  Always break after the return types of top-level
+#                       functions.
+AlwaysBreakAfterDefinitionReturnType: None
+
+# Always Break After Return Type
+#
+# The function declaration return type breaking style to use.
+#
+# Options: None -- Break after return type automatically.
+#                  PenaltyReturnTypeOnItsOwnLine is taken into account.
+#          All -- Always break after the return type.
+#          TopLevel -- Always break after the return types of top-level
+#                      functions.
+#          AllDefinitions -- Always break after the return type of 
+#                            function definitions.
+#          TopLevelDefinitions -- Always break after the return type of
+#                                 top-level definitions.
+AlwaysBreakAfterReturnType: None
+
+# Always Break Before Multiline String
+#
+# If true, always break before multiline string literals.
+#
+# This flag is meant to make cases where there are multiple multiline strings
+# in a file look more consistent. Thus, it will only take effect if wrapping
+# the string at that point leads to it being indented ContinuationIndentWidth
+# spaces from the start of the line.
+#
+# Options: Boolean
+AlwaysBreakBeforeMultilineStrings: false
+
+# Always Break Template Declarations
+#
+# If true, always break after the template<...> of a template declaration.
+#
+# Options: Boolean
+AlwaysBreakTemplateDeclarations: false
+
+# Bin Pack Arguments
+#
+# If false, a function call’s arguments will either be all on the same line
+# or will have one line each.
+#
+# Options: Boolean
+BinPackArguments: true
+
+# Bin Pack Parameters
+#
+# If false, a function declaration’s or function definition’s parameters 
+# will either all be on the same line or will have one line each.
+#
+# Options: Boolean
+BinPackParameters: true
+
+# Brace Wrapping
+#
+# Control of individual brace wrapping cases.
+#
+# Nested configuration flags
+BraceWrapping:
+  # After Class
+  #
+  # Wrap class definitions.
+  #
+  # Options: Boolean
+  AfterClass: false
+  
+  # After Control Statement
+  #
+  # Wrap control statements (if/for/while/switch/..).
+  #
+  # Options: Boolean
+  AfterControlStatement: false
+
+  # After Enum
+  #
+  # Wrap enum definitions.
+  #
+  # Options: Boolean
+  AfterEnum: false
+
+  # After Function
+  #
+  # Wrap function definition.
+  #
+  # Options: Boolean
+  AfterFunction: false
+
+  # After Namespace
+  #
+  # Wrap namespace definitions.
+  #
+  # Options: Boolean
+  AfterNamespace: false
+
+  # After ObjC Declarations
+  #
+  # Wrap ObjC definitions (@autoreleasepool, interfaces, ..).
+  #
+  # Options: Boolean
+  AfterObjCDeclaration: false
+
+  # After Struct
+  #
+  # Wrap struct definitions.
+  #
+  # Options: Boolean
+  AfterStruct: false
+
+  # After Union
+  #
+  # Wrap union definitions.
+  #
+  # Options: Boolean
+  AfterUnion: false
+
+  # Before Catch
+  #
+  # Wrap before catch.
+  #
+  # Options: Boolean
+  BeforeCatch: true
+
+  # Before Else
+  #
+  # Wrap before else.
+  #
+  # Options: Boolean
+  BeforeElse: true
+
+  # Indent Braces
+  #
+  # Indent the wrapped braces themselves.
+  #
+  # Options: Boolean
+  IndentBraces: false
+
+# Break Before Binary Operators
+#
+# The way to wrap binary operators.
+#
+# Options: None -- Break after operators.
+#          NonAssignment -- Break before operators that aren't assignments.
+#          All -- Break before operators.
+BreakBeforeBinaryOperators: None
+
+# Break Before Braces
+#
+# The brace breaking style to use.
+#
+# Options: Attach -- Always attach braces to surrounding context.
+#          Linux -- Like Attach, but break before braces on function,
+#                   namespace, and class definitions.
+#          Mozilla -- Like Attach, but break before braces on enum,
+#                     function, and record definitions.
+#          Stroustrup -- Like Attach, but break before function
+#                        definitions, catch, and else.
+#          Allman -- Always break before braces.
+#          GNU -- Always break before braces and add an extra
+#                 of indentation to braces of control statements,
+#                 not to those of class, function or other defintions.
+#          Webkit -- Like Attach, but break before functions.
+#          Custom -- Configure each individual brace in BraceWrapping
+BreakBeforeBraces: Custom
+
+# Break Before Ternary Operators
+#
+# If true, ternary operators will be placed after line breaks.
+#
+# Options: Boolean
+BreakBeforeTernaryOperators: false
+
+# Break Constructor Initializers Before Comma
+#
+# Always break constructor initializer before commas and 
+# align the commas with the colon
+#
+# Options: Boolean
+BreakConstructorInitializersBeforeComma: false
+
+# Comment Pragmas
+#
+# A regular Expression that describes comments with special meaning,
+# which should not be split into lines or otherwise changed.
+#
+# Option: std::string
+CommentPragmas:  '^ IWYU pragma:'
+
+# Constructor Initializer All On One Line or One Per Line
+#
+# If the constructor Initializers don't fit on a line, put each
+# initializer on its own line.
+#
+# Options: Boolean
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+
+# Constructor Initializer Indent Width
+#
+# The number of characters to use for indentation of constructor
+# initializer lists.
+#
+# Options: Int
+ConstructorInitializerIndentWidth: 4
+
+# Continuation Indent Width
+#
+# Indent width for line continuations.
+#
+# Options: Int
+ContinuationIndentWidth: 2
+
+# Cpp11 Braced List Style
+#
+# If true, format braced lists as best suited for C++11 braced lists.
+#
+# Important differences: - No spaces inside the braced list. 
+#                        - No line break before the closing brace. 
+#                        - Indentation with the continuation indent, 
+#                          not with the block indent.
+#
+# Fundamentally, C++11 braced lists are formatted exactly like function calls
+# would be formatted in their place. If the braced list follows a name 
+# (e.g. a type or variable name), clang-format formats as if the {} were the
+# parentheses of a function call with that name. If there is no name, 
+# a zero-length name is assumed.
+#
+# Options: Boolean
+Cpp11BracedListStyle: true
+
+# Derive Pointer Alignment
+#
+# If true, analyze the formatted file for the most common alignment
+# of & and \*. PointerAlignment is then used only as fallback.
+#
+# Options: Boolean
+DerivePointerAlignment: false
+
+# Disable Format
+# Disables formatting completely.
+# Options: Boolean
+DisableFormat: false
+
+# Do not use
+ExperimentalAutoDetectBinPacking: false
+
+# For Each Macros
+# A vector of macros that should be interpreted as foreach loops instead
+# of as function calls.
+# Options: std::vector<std::string>
+ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
+
+# Include Categories
+#
+# Regular expressions denoting the different #include categories used for
+# ordering #includes.
+#
+# These regular expressions are matched against the filename of an include
+# (including the <> or “”) in order. The value belonging to the first
+# matching regular expression is assigned and #includes are sorted first
+# according to increasing category number and then alphabetically within
+# each category.
+#
+# If none of the regular expressions match, INT_MAX is assigned as category.
+# The main header for a source file automatically gets category 0. so that it
+# is generally kept at the beginning of the #includes
+# (http://llvm.org/docs/CodingStandards.html#include-style). However, you can
+# also assign negative priorities if you have certain headers that always need 
+# to be first.
+IncludeCategories:
+  - Regex: 'stdafx.*'
+    Priority: -1
+  - Regex: '.*'
+    Priority: 1
+  - Regex: '^<.*\.h>'
+    Priority: 2
+  - Regex: '^<.*'
+    Priority: 3
+  
+# Indent Case Labels
+#
+# Indent case labels one level from the switch statement.
+# When false, use the same indentation level as for the switch statement. 
+# Switch statement body is always indented one level more than case labels.
+#
+# Options: Boolean
+IndentCaseLabels: true
+
+# Indent Width
+#
+# The number of columns to use for indentation.
+#
+# Options: Boolean
+IndentWidth: 2
+
+# Indent Wrapped Function Names
+#
+# Indent if a function definition or declaration is wrapped after the type.
+#
+# Options: Boolean
+IndentWrappedFunctionNames: false
+
+# Keep Empty Lines
+#
+# If true, empty lines at the start of blocks are kept.
+#
+# Options: Boolean
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# Macro Block Begin
+#
+# A regular expression matching macros that start a block.
+#
+# Options: std::string
+MacroBlockBegin: ''
+
+# Macro Block End
+#
+# A regular expression matching macros that end a block.
+#
+# Options: std::string
+MacroBlockEnd:   ''
+
+# Max Empty Lines To Keep
+#
+# The maximum number of consecutive empty lines to keep
+#
+# Options: Unsigned Int
+MaxEmptyLinesToKeep: 1
+
+# Namespace Indentation
+#
+# The indentation used for namespaces.
+#
+# Options: None -- Don't indent in namespaces
+#          Inner -- Indent only in inner namespaces (nested in other
+#                   namespaces).
+#          All -- Indent in all namespaces
+NamespaceIndentation: None
+
+# ObjC Block Indent Width
+#
+# The number of characters to use for indentation of ObjC blocks.
+#
+# Options: Unsigned Int
+ObjCBlockIndentWidth: 2
+
+# ObjC Space After Property
+#
+# Add a space after @property in Objective-C, i.e. use @property
+# (readonly) instead of @property(readonly).
+#
+# Options: Boolean
+ObjCSpaceAfterProperty: false
+
+# ObjC Space Before Protocol List
+#
+# Add a space in front of an Objective-C protocol list, 
+# i.e. use Foo <Protocol> instead of Foo<Protocol>.
+#
+# Options: Boolean
+ObjCSpaceBeforeProtocolList: true
+
+# Penalty Break Before First Call Parameter
+#
+# The penalty for breaking a function call after call(.
+#
+# Options: Unsigned Int
+PenaltyBreakBeforeFirstCallParameter: 19
+
+# Penalty Break Comment
+#
+# The penalty for each line break introduced inside a comment.
+#
+# Options: Unsigned Int
+PenaltyBreakComment: 300
+
+# Penalty Break First Less Less
+#
+# The penalty for breaking before the first <<.
+#
+# Options: Unsigned Int
+PenaltyBreakFirstLessLess: 120
+
+# Penalty Break String
+#
+# The penalty for each line break introduced inside a string literal.
+#
+# Options: Unsigned Int
+PenaltyBreakString: 1000
+
+# Penalty Excess Character
+#
+# The penalty for each character outside of the column limit.
+#
+# Options: Unsigned Int
+PenaltyExcessCharacter: 1000000
+
+# Penalty Return Type On Its Own Line 
+#
+# Penalty for putting the return type of a function onto its own line.
+#
+# Options: Unsigned Int
+PenaltyReturnTypeOnItsOwnLine: 60
+
+# Pointer Alignment 
+#
+# Pointer and reference alignment style.
+#
+# Options: Left -- Align pointer to the left.
+#          Right -- Align pointer to the right.
+#          Middle -- Align pointer in the middle.
+PointerAlignment: Left
+
+# Reflow Comments
+#
+# If true, clang-format will attempt to re-flow comments.
+#
+# Options: Boolean
+ReflowComments: true
+
+# Sort Includes
+#
+# If true, clang-format will sort #includes.
+#
+# Options: Boolean
+SortIncludes: true
+
+# SpaceAfterCStyleCast 
+#
+# If true, a space may be inserted after C style casts.
+#
+# Options: Boolean
+SpaceAfterCStyleCast: false
+
+# SpaceBeforeAssignmentOperators
+#
+# If false, spaces will be removed before assignment operators.
+#
+# Options: Boolean
+SpaceBeforeAssignmentOperators: true
+
+# Space Before Parens
+#
+# Defines in which cases to put a space before opening parentheses.
+#
+# Options: Never -- Never put a space before opening parentheses.
+#          ControlStatements --  Put a space before opening parentheses only
+#                                after control statement keywords
+#                                (for/if/while...).
+#          Always -- Always put a space before opening parentheses, except
+#                    when it’s prohibited by the syntax rules
+#                    (in function-like macro definitions) or when determined
+#                    by other style rules (after unary operators, opening 
+#                    parentheses, etc.)
+SpaceBeforeParens: Never
+
+# Space In Empty Parentheses
+#
+# If true, spaces may be inserted into ().
+#
+# Options: Boolean
+SpaceInEmptyParentheses: false
+
+# Spaces Before Trailing Comments
+#
+# The number of spaces before trailing line comments (// - comments).
+#
+# This does not affect trailing block comments (/* - comments) as those
+# commonly have different usage patterns and a number of special cases.
+#
+# Options: Unsigned Int
+SpacesBeforeTrailingComments: 1
+
+# Spaces In Angles
+#
+# If true, spaces will be inserted after < and before > in template
+# argument lists.
+#
+# Options: Boolean
+SpacesInAngles:  false
+
+# Spaces In Container Literals
+#
+# If true, spaces are inserted inside container literals 
+# (e.g. ObjC and Javascript array and dict literals).
+#
+# Options: Boolean
+SpacesInContainerLiterals: true
+
+# Spaces In C Style Cast Parentheses
+#
+# If true, spaces may be inserted into C style casts.
+#
+# Options: Boolean
+SpacesInCStyleCastParentheses: false
+
+# Spaces In Parentheses
+#
+# If true, spaces will be inserted after ( and before ).
+#
+# Options: Boolean
+SpacesInParentheses: false
+
+# Spaces In Square Brackets
+#
+# If true, spaces will be inserted after [ and before ].
+#
+# Options: Boolean
+SpacesInSquareBrackets: false
+
+# Tab Width
+#
+# The number of columns used for tab stops.
+#
+# Options: Unsigned Int
+TabWidth:        2
+
+# Use Tab
+#
+# The way to use tab characters in the resulting file.
+#
+# Options: Never -- Never use tab.
+#          ForIndentation -- Use tabs only for indentation.
+#          Always -- Use tabs whenever we need to fill whitespace that spans
+#                    at least from one tab stop to the next one.
+UseTab:          Never
+
+---
+# Language
+#
+# Language, this format style is targeted at.
+#
+# Options: None, Cpp, Java, Javascript, Proto, TableGen
+Language: Cpp
+
+# Column Limit
+#
+# The column limit.
+#
+# A column limit of 0 means that there is no column limit.
+# In this case, clang-format will respect the input’s line breaking
+# decisions within statements unless they contradict other rules.
+#
+# Options: Unsigned Int
+ColumnLimit: 80
+
+# Standard
+#
+# Format compatible with this standard, e.g. use A<A<int> > instead of
+# A<A<int>> for LS_Cpp03.
+#
+# Options: Cpp03 -- Use C++03-compatible syntax.
+#          Cpp11 -- Use features of C++11 (e.g. A<A<int>> instead of
+#                   A<A<int> >).
+#          Auto -- 
+Standard:        Cpp11
