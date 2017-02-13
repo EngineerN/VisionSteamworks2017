@@ -11,8 +11,7 @@
 #include <utility>
 
 /*! \brief The Pipeline Thread handles information from the Camera Thread, does
- * image processing
- *  and sends information to the Network Thread.
+ * image processing and sends information to the Network Thread.
  */
 class PipelineThread {
   grip::GripPipeline pipeline; //!< Interface to pipeline code
@@ -59,13 +58,15 @@ private:
         pipeline.getfilterContoursOutput();
       int contour_center_total = 0;
       int contour_count = 0;
-      cv::Rect rect;
-      const int min_dist_from_center = 100;
-      const int neg_min_dist_from_center = -100;
+      cv::Size s = (*frame).size();
+      int width = s.width;
+      int midwidth = width/2;
+      int min_dist_from_center = width/4;
+      int neg_min_dist_from_center = -1*min_dist_from_center;
       bool in_center = false;
       for(auto& contour : *contours) {
-        rect = cv::boundingRect(contour);
-        int centerx = 320 - rect.x + rect.width / 2;
+        cv::Rect rect = cv::boundingRect(contour);
+        int centerx = midwidth - rect.x + rect.width / 2;
         if(centerx < min_dist_from_center &&
            centerx > neg_min_dist_from_center) {
           contour_center_total += centerx;
@@ -75,7 +76,7 @@ private:
       }
       if(in_center) {
         m_queue_output.add(
-          std::make_pair(in_center, contour_center_total / contour_count));
+          std::make_pair(true, contour_center_total / contour_count));
       }
       else {
         m_queue_output.add(std::make_pair(false, 0));

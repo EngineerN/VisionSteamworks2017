@@ -23,7 +23,7 @@ class NetworkThread {
   int s;                       //!< Network Socket information
 
   std::deque<std::pair<bool, int>> m_filter_queue; //!< Filter Queue
-  int m_filter_length;                             //!< Max queue length
+  unsigned int m_filter_length;                    //!< Max queue length
 
   wqueue<std::pair<bool, int>>& m_queue; //!< Network Queue
   std::atomic<bool> m_stop;              //!< Is the thread stopped?
