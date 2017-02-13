@@ -27,7 +27,7 @@ SET(SRC_FOLDER src)
 SET(INCLUDE_FOLDER include)
 FILE(GLOB_RECURSE SRC_FILES "${SRC_FOLDER}/*.cpp")
 Set(SOURCE ${SRC_FOLDER}/main.cpp ${SRC_FOLDER}/GripPipeline.cpp)
-Set(HEADERS ${INCLUDE_FOLDER}/GripPipeline.h ${INCLUDE_FOLDER}/WQueue.h ${INCLUDE_FOLDER}/CameraThread.h ${INCLUDE_FOLDER}/PipelineThread.h)
+Set(HEADERS ${INCLUDE_FOLDER}/GripPipeline.h ${INCLUDE_FOLDER}/WQueue.h ${INCLUDE_FOLDER}/CameraThread.h ${INCLUDE_FOLDER}/PipelineThread.h ${INCLUDE_FOLDER}/Config.h ${INCLUDE_FOLDER}/json.hpp)
 
 # Check and add warning flags
 set(GNU_WARNING_FLAGS -Wall -Wextra -pedantic)

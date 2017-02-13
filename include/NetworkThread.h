@@ -18,16 +18,54 @@
  *  information over the network.
  */
 class NetworkThread {
+private:
   struct sockaddr_in si_other; //!< Network Socket information
   int slen;                    //!< Network Socket information
   int s;                       //!< Network Socket information
 
   std::deque<std::pair<bool, int>> m_filter_queue; //!< Filter Queue
-  unsigned int m_filter_length;                    //!< Max queue length
+  unsigned short m_filter_length;                  //!< Max queue length
 
   wqueue<std::pair<bool, int>>& m_queue; //!< Network Queue
   std::atomic<bool> m_stop;              //!< Is the thread stopped?
   std::thread m_thread;                  //!< Thread to run operations
+
+  /*! \brief Function that the thread runs
+  */
+  void run() {
+    for(int i = 0;; i++) {
+      std::unique_ptr<std::pair<bool, int>> temp = m_queue.remove();
+      m_filter_queue.push_back(*temp);
+      if(m_filter_queue.size() > m_filter_length) {
+        m_filter_queue.pop_front();
+      }
+      bool in_center = false;
+      int average = 0;
+      for(auto it = m_filter_queue.begin(); it != m_filter_queue.end(); it++) {
+        std::cout << (*it).first << " " << (*it).second << std::endl;
+        if(!(*it).first) {
+          continue;
+        }
+        else {
+          average += (*it).second;
+          in_center = true;
+        }
+      }
+      average /= (int)m_filter_length;
+
+      {
+        std::stringstream message;
+        message << std::to_string(average) << " " << std::to_string(in_center);
+        std::cout << "sending " << message.str() << std::endl;
+        if(sendto(s, message.str().c_str(), message.str().size(), 0,
+                  (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
+          std::cout << "sendto() failed with error code : " << WSAGetLastError()
+                    << std::endl;
+          // exit(EXIT_FAILURE);
+        }
+      }
+    }
+  }
 
 public:
   /*! \brief Constructor to initialize Network Thread Class
@@ -76,42 +114,4 @@ public:
   /*! \brief Function to start the thread
   */
   void start() { m_thread = std::thread(&NetworkThread::run, this); }
-
-private:
-  /*! \brief Function that the thread runs
-  */
-  void run() {
-    for(int i = 0;; i++) {
-      std::unique_ptr<std::pair<bool, int>> temp = m_queue.remove();
-      m_filter_queue.push_back(*temp);
-      if(m_filter_queue.size() > m_filter_length) {
-        m_filter_queue.pop_front();
-      }
-      bool in_center = false;
-      int average = 0;
-      for(auto it = m_filter_queue.begin(); it != m_filter_queue.end(); it++) {
-        std::cout << (*it).first << " " << (*it).second << std::endl;
-        if(!(*it).first) {
-          continue;
-        }
-        else {
-          average += (*it).second;
-          in_center = true;
-        }
-      }
-      average /= m_filter_length;
-
-      {
-        std::stringstream message;
-        message << std::to_string(average) << " " << std::to_string(in_center);
-        std::cout << "sending " << message.str() << std::endl;
-        if(sendto(s, message.str().c_str(), message.str().size(), 0,
-                  (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
-          std::cout << "sendto() failed with error code : " << WSAGetLastError()
-                    << std::endl;
-          // exit(EXIT_FAILURE);
-        }
-      }
-    }
-  }
 };

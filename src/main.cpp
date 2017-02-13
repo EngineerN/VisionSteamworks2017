@@ -1,4 +1,5 @@
 #include "CameraThread.h"
+#include "Config.h"
 #include "NetworkThread.h"
 #include "PipelineThread.h"
 #include "WQueue.h"
@@ -12,12 +13,18 @@
 #include <thread>
 
 int main(int argc, char const* argv[]) {
+  //!< Setup the config file
+  Config projectConfig;
+  if(!projectConfig.readFile("config.json")) {
+    exit(0);
+  }
+
   //!< Initialize queues used
   wqueue<cv::Mat> cameraQueue1;
   wqueue<std::pair<bool, int>> pipelineQueue1;
 
   //!< Start the Camera Thread
-  CameraThread* cameraThread1 = new CameraThread(cameraQueue1, 0);
+  CameraThread* cameraThread1 = new CameraThread(cameraQueue1, projectConfig.getShooterCameraID());
   cameraThread1->start();
 
   //!< Start the Pipeline Thread
@@ -27,7 +34,7 @@ int main(int argc, char const* argv[]) {
 
   //!< Start the Network Thread
   NetworkThread* networkThread =
-    new NetworkThread(pipelineQueue1, 5, "10.255.255.255", 4143);
+    new NetworkThread(pipelineQueue1, projectConfig.getFilterLength(), projectConfig.getIPAddress(), projectConfig.getIPPort());
   networkThread->start();
 
   // Ctrl-C to end program

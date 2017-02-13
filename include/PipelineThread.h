@@ -14,6 +14,7 @@
  * image processing and sends information to the Network Thread.
  */
 class PipelineThread {
+private:
   grip::GripPipeline pipeline; //!< Interface to pipeline code
 
   wqueue<cv::Mat>& m_queue; //!< Input queue from the Camera Thread
@@ -22,32 +23,6 @@ class PipelineThread {
   std::atomic<bool> m_stop; //!< Is the thread stopped?
   std::thread m_thread;     //!< Thread to run operations
 
-public:
-  /*! \brief Constructor to initialize Pipeline Thread Class
-   *  \warning Default constructor is not used
-   */
-  PipelineThread() = delete;
-
-  /*! \brief Constructor to initiailize Pipeline Thread Class
-   *  \param [in] queue Input queue from the Camera Thread
-   *  \param [in] queue_output Output queue to the Network Thread
-   */
-  PipelineThread(wqueue<cv::Mat>& queue,
-                 wqueue<std::pair<bool, int>>& queue_output)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(), m_thread() {}
-
-  /*! \brief Function to stop the thread
-  */
-  void stop() {
-    m_stop = true;
-    m_thread.join();
-  }
-
-  /*! \brief Function to start the thread
-  */
-  void start() { m_thread = std::thread(&PipelineThread::run, this); }
-
-private:
   /*! \brief Function that the thread runs
   */
   void run() {
@@ -83,4 +58,29 @@ private:
       }
     }
   }
+
+public:
+  /*! \brief Constructor to initialize Pipeline Thread Class
+   *  \warning Default constructor is not used
+   */
+  PipelineThread() = delete;
+
+  /*! \brief Constructor to initiailize Pipeline Thread Class
+   *  \param [in] queue Input queue from the Camera Thread
+   *  \param [in] queue_output Output queue to the Network Thread
+   */
+  PipelineThread(wqueue<cv::Mat>& queue,
+                 wqueue<std::pair<bool, int>>& queue_output)
+      : m_queue(queue), m_queue_output(queue_output), m_stop(), m_thread() {}
+
+  /*! \brief Function to stop the thread
+  */
+  void stop() {
+    m_stop = true;
+    m_thread.join();
+  }
+
+  /*! \brief Function to start the thread
+  */
+  void start() { m_thread = std::thread(&PipelineThread::run, this); }
 };
