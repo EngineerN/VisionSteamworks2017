@@ -35,9 +35,9 @@ private:
       int contour_count = 0;
       cv::Size s = (*frame).size();
       int width = s.width;
-      int midwidth = width/2;
-      int min_dist_from_center = width/4;
-      int neg_min_dist_from_center = -1*min_dist_from_center;
+      int midwidth = width / 2;
+      int min_dist_from_center = width / 4;
+      int neg_min_dist_from_center = -1 * min_dist_from_center;
       bool in_center = false;
       for(auto& contour : *contours) {
         cv::Rect rect = cv::boundingRect(contour);

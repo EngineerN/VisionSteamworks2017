@@ -28,7 +28,7 @@ public:
   */
   std::unique_ptr<T> remove() {
     std::unique_lock<std::mutex> mutex_lock(m_mutex);
-    while (m_queue.empty()) {
+    while(m_queue.empty()) {
       m_cv.wait(mutex_lock);
     }
     std::unique_ptr<T> item = std::move(m_queue.front());

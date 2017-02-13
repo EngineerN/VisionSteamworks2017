@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include <thread>
 
-int main(int argc, char const* argv[]) {
+int main() {
   //!< Setup the config file
   Config projectConfig;
   if(!projectConfig.readFile("config.json")) {
@@ -24,7 +24,8 @@ int main(int argc, char const* argv[]) {
   wqueue<std::pair<bool, int>> pipelineQueue1;
 
   //!< Start the Camera Thread
-  CameraThread* cameraThread1 = new CameraThread(cameraQueue1, projectConfig.getShooterCameraID());
+  CameraThread* cameraThread1 =
+    new CameraThread(cameraQueue1, projectConfig.getShooterCameraID());
   cameraThread1->start();
 
   //!< Start the Pipeline Thread
@@ -34,7 +35,8 @@ int main(int argc, char const* argv[]) {
 
   //!< Start the Network Thread
   NetworkThread* networkThread =
-    new NetworkThread(pipelineQueue1, projectConfig.getFilterLength(), projectConfig.getIPAddress(), projectConfig.getIPPort());
+    new NetworkThread(pipelineQueue1, projectConfig.getFilterLength(),
+                      projectConfig.getIPAddress(), projectConfig.getIPPort());
   networkThread->start();
 
   // Ctrl-C to end program
