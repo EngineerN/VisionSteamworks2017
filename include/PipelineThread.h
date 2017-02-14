@@ -34,27 +34,21 @@ private:
       int contour_center_total = 0;
       int contour_count = 0;
       cv::Size s = (*frame).size();
-      int width = s.width;
-      int midwidth = width / 2;
-      int min_dist_from_center = width / 4;
-      int neg_min_dist_from_center = -1 * min_dist_from_center;
-      bool in_center = false;
+      int midwidth = s.width / 2;
+      bool found_contour = false;
       for(auto& contour : *contours) {
         cv::Rect rect = cv::boundingRect(contour);
         int centerx = midwidth - rect.x + rect.width / 2;
-        if(centerx < min_dist_from_center &&
-           centerx > neg_min_dist_from_center) {
-          contour_center_total += centerx;
-          contour_count++;
-          in_center = true;
-        }
+        contour_center_total += centerx;
+        contour_count++;
+        found_contour = true;
       }
-      if(in_center) {
-        m_queue_output.add(
-          std::make_pair(true, contour_center_total / contour_count));
+      if(found_contour) {
+        m_queue_output.add(std::move(
+          std::make_pair(true, contour_center_total / contour_count)));
       }
       else {
-        m_queue_output.add(std::make_pair(false, 0));
+        m_queue_output.add(std::move(std::make_pair(false, 0)));
       }
     }
   }

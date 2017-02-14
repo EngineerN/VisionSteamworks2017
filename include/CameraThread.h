@@ -70,7 +70,7 @@ private:
         std::cerr << "ERROR! Blank frame grabbed" << std::endl;
         break;
       }
-      m_queue.add(frame);
+      m_queue.add(std::move(frame));
     }
   }
 };

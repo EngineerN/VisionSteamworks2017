@@ -16,7 +16,7 @@ public:
   /*! \brief Add item to the queue
   *   \param [in] item Item to add to the queue
   */
-  void add(T item) {
+  void add(T&& item) {
     std::unique_ptr<T> item_ptr = std::make_unique<T>(item);
     std::lock_guard<std::mutex> mutex_lock(m_mutex);
     m_queue.push(std::move(item_ptr));
@@ -39,9 +39,16 @@ public:
   /*! \brief Returns the size of the queue
   *   \return Size of the queue
   */
-  int size() {
+  std::size_t size() const {
     std::unique_lock<std::mutex> mutex_lock(m_mutex);
-    int size = m_queue.size();
-    return size;
+    return m_queue.size();
+  }
+
+  /*! \brief Returns if the queue is empty
+  *   \return Bool of if the queue is empty
+  */
+  bool empty() const {
+    std::lock_guard<std::mutex> lock (m_mutex);
+    return m_queue.empty();
   }
 };
