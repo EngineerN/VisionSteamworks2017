@@ -39,7 +39,7 @@ public:
   /*! \brief Returns the size of the queue
   *   \return Size of the queue
   */
-  std::size_t size() const {
+  std::size_t size() {
     std::unique_lock<std::mutex> mutex_lock(m_mutex);
     return m_queue.size();
   }
@@ -47,8 +47,8 @@ public:
   /*! \brief Returns if the queue is empty
   *   \return Bool of if the queue is empty
   */
-  bool empty() const {
-    std::lock_guard<std::mutex> lock (m_mutex);
+  bool empty() {
+    std::unique_lock<std::mutex> mutex_lock(m_mutex);
     return m_queue.empty();
   }
 };

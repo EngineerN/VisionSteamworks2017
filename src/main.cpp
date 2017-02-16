@@ -1,7 +1,8 @@
 #include "CameraThread.h"
 #include "Config.h"
 #include "NetworkThread.h"
-#include "PipelineThread.h"
+#include "ShooterPipelineThread.h"
+#include "GearPipelineThread.h"
 #include "WQueue.h"
 #include <chrono>
 #include <iostream>
@@ -22,21 +23,39 @@ int main() {
   //!< Initialize queues used
   wqueue<cv::Mat> cameraQueue1;
   wqueue<std::pair<bool, int>> pipelineQueue1;
+  wqueue<cv::Mat> cameraQueue2;
+  wqueue<std::pair<bool, int>> pipelineQueue2;
 
-  //!< Start the Camera Thread
+  //!< Declaration of Camera Thread
   CameraThread* cameraThread1 =
     new CameraThread(cameraQueue1, projectConfig.getShooterCameraID());
-  cameraThread1->start();
+  
+  CameraThread* cameraThread2 =
+    new CameraThread(cameraQueue2, projectConfig.getGearCameraID());
 
-  //!< Start the Pipeline Thread
-  PipelineThread* pipelineThread1 =
-    new PipelineThread(cameraQueue1, pipelineQueue1);
-  pipelineThread1->start();
+  //!< Declaration of Pipeline Thread
+  ShooterPipelineThread* pipelineThread1 =
+    new ShooterPipelineThread(cameraQueue1, pipelineQueue1);
+  
+  GearPipelineThread* pipelineThread2 =
+    new GearPipelineThread(cameraQueue2, pipelineQueue2);
 
-  //!< Start the Network Thread
+  //!< Declaration of Network Thread
   NetworkThread* networkThread =
-    new NetworkThread(pipelineQueue1, projectConfig.getFilterLength(),
+    new NetworkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
                       projectConfig.getIPAddress(), projectConfig.getIPPort());
+
+  //!< Start Threads
+  if(projectConfig.getShooterCameraEnable()) {
+    cameraThread1->start();
+    pipelineThread1->start();
+  } 
+
+  if(projectConfig.getGearCameraEnable()) {
+    cameraThread2->start();
+    pipelineThread2->start();
+  }
+
   networkThread->start();
 
   // Ctrl-C to end program

@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <thread>
-#include <thread>
+#include <sys/time.h>
 #define WSAGetLastError() (errno)
 #define SOCKET_ERROR (-1)
 
@@ -23,39 +23,61 @@ private:
   int slen;                    //!< Network Socket information
   int s;                       //!< Network Socket information
 
-  std::deque<std::pair<bool, int>> m_filter_queue; //!< Filter Queue
+  std::deque<std::pair<bool, int>> m_filter_queue1; //!< Camera 1 Filter Queue
+  std::deque<std::pair<bool, int>> m_filter_queue2; //!< Camera 2 Filter Queue
   unsigned short m_filter_length;                  //!< Max queue length
 
-  wqueue<std::pair<bool, int>>& m_queue; //!< Network Queue
+  wqueue<std::pair<bool, int>>& m_queue1; //!< Network Queue
+  wqueue<std::pair<bool, int>>& m_queue2; //!< Network Queue
   std::atomic<bool> m_stop;              //!< Is the thread stopped?
   std::thread m_thread;                  //!< Thread to run operations
+
+  std::pair<bool,int> filter(std::deque<std::pair<bool, int>> filter_queue) {
+    bool in_center = false;
+    int average = 0;
+    for(auto it = filter_queue.begin(); it != filter_queue.end(); it++) {
+      if(!(*it).first) {
+        continue;
+      }
+      else {
+        average += (*it).second;
+        in_center = true;
+      }
+    }
+    average /= (int)m_filter_length;
+    return std::make_pair<bool,int>(std::move(in_center), std::move(average));
+  }
+
 
   /*! \brief Function that the thread runs
   */
   void run() {
     for(int i = 0;; i++) {
-      std::unique_ptr<std::pair<bool, int>> temp = m_queue.remove();
-      m_filter_queue.push_back(*temp);
-      if(m_filter_queue.size() > m_filter_length) {
-        m_filter_queue.pop_front();
-      }
-      bool in_center = false;
-      int average = 0;
-      for(auto it = m_filter_queue.begin(); it != m_filter_queue.end(); it++) {
-        std::cout << (*it).first << " " << (*it).second << std::endl;
-        if(!(*it).first) {
-          continue;
-        }
-        else {
-          average += (*it).second;
-          in_center = true;
+      if(!m_queue1.empty()) {
+        std::unique_ptr<std::pair<bool, int>> temp1 = m_queue1.remove();
+        m_filter_queue1.push_back(*temp1);
+        if(m_filter_queue1.size() > m_filter_length) {
+          m_filter_queue1.pop_front();
         }
       }
-      average /= (int)m_filter_length;
+
+      if(!m_queue2.empty()) {
+        std::unique_ptr<std::pair<bool, int>> temp2 = m_queue2.remove();
+        m_filter_queue2.push_back(*temp2);
+        if(m_filter_queue2.size() > m_filter_length) {
+          m_filter_queue2.pop_front();
+        }
+      }
+      
+      std::pair<bool, int> avg1, avg2;
+
+      avg1 = filter(m_filter_queue1);
+      avg2 = filter(m_filter_queue2);
 
       {
         std::stringstream message;
-        message << std::to_string(average) << " " << std::to_string(in_center);
+        message << std::to_string(avg1.first) << " " << std::to_string(avg1.second)
+        << " " << std::to_string(avg2.first) << " " << std::to_string(avg2.second);
         std::cout << "sending " << message.str() << std::endl;
         if(sendto(s, message.str().c_str(), message.str().size(), 0,
                   (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
@@ -64,6 +86,7 @@ private:
           // exit(EXIT_FAILURE);
         }
       }
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
   }
 
@@ -79,9 +102,10 @@ public:
    *  \param [in] ip_address UDP Address to send the network packets
    *  \param [in] port UDP Port to send network packets accross
    */
-  NetworkThread(wqueue<std::pair<bool, int>>& queue, int filter_length,
-                std::string ip_address, int port)
-      : m_queue(queue), m_stop(), m_thread() {
+  NetworkThread(wqueue<std::pair<bool, int>>& queue1,
+                wqueue<std::pair<bool, int>>& queue2, 
+                int filter_length, std::string ip_address, int port)
+      : m_queue1(queue1), m_queue2(queue2), m_stop(), m_thread() {
     // start networking
     m_filter_length = filter_length;
     s = sizeof(si_other);

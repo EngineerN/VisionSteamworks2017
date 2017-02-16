@@ -1,19 +1,13 @@
-#include "GripPipeline.h"
-/**
-* Initializes a GripPipeline.
-*/
+#include "ShooterGripPipeline.h"
 
 namespace grip {
 
-GripPipeline::GripPipeline() {
+ShooterGripPipeline::ShooterGripPipeline() {
 }
 /**
-* Runs an iteration of the Pipeline and updates outputs.
-*
-* Sources need to be set before calling this method. 
-*
+* Runs an iteration of the pipeline and updates outputs.
 */
-void GripPipeline::process(cv::Mat source0){
+void ShooterGripPipeline::Process(cv::Mat& source0){
 	//Step HSV_Threshold0:
 	//input
 	cv::Mat hsvThresholdInput = source0;
@@ -41,7 +35,7 @@ void GripPipeline::process(cv::Mat source0){
 	double filterContoursMinPerimeter = 0.0;  // default Double
 	double filterContoursMinWidth = 0.0;  // default Double
 	double filterContoursMaxWidth = 1000.0;  // default Double
-	double filterContoursMinHeight = 5.0;  // default Double
+	double filterContoursMinHeight = 1.0;  // default Double
 	double filterContoursMaxHeight = 1000.0;  // default Double
 	double filterContoursSolidity[] = {0.0, 100};
 	double filterContoursMaxVertices = 1000000.0;  // default Double
@@ -55,28 +49,28 @@ void GripPipeline::process(cv::Mat source0){
  * This method is a generated getter for the output of a HSV_Threshold.
  * @return Mat output from HSV_Threshold.
  */
-cv::Mat* GripPipeline::gethsvThresholdOutput(){
+cv::Mat* ShooterGripPipeline::GetHsvThresholdOutput(){
 	return &(this->hsvThresholdOutput);
 }
 /**
  * This method is a generated getter for the output of a CV_Canny.
  * @return Mat output from CV_Canny.
  */
-cv::Mat* GripPipeline::getcvCannyOutput(){
+cv::Mat* ShooterGripPipeline::GetCvCannyOutput(){
 	return &(this->cvCannyOutput);
 }
 /**
  * This method is a generated getter for the output of a Find_Contours.
  * @return ContoursReport output from Find_Contours.
  */
-std::vector<std::vector<cv::Point> >* GripPipeline::getfindContoursOutput(){
+std::vector<std::vector<cv::Point> >* ShooterGripPipeline::GetFindContoursOutput(){
 	return &(this->findContoursOutput);
 }
 /**
  * This method is a generated getter for the output of a Filter_Contours.
  * @return ContoursReport output from Filter_Contours.
  */
-std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
+std::vector<std::vector<cv::Point> >* ShooterGripPipeline::GetFilterContoursOutput(){
 	return &(this->filterContoursOutput);
 }
 	/**
@@ -88,7 +82,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param val The min and max value.
 	 * @param output The image in which to store the output.
 	 */
-	void GripPipeline::hsvThreshold(cv::Mat &input, double hue[], double sat[], double val[], cv::Mat &out) {
+	void ShooterGripPipeline::hsvThreshold(cv::Mat &input, double hue[], double sat[], double val[], cv::Mat &out) {
 		cv::cvtColor(input, out, cv::COLOR_BGR2HSV);
 		cv::inRange(out,cv::Scalar(hue[0], sat[0], val[0]), cv::Scalar(hue[1], sat[1], val[1]), out);
 	}
@@ -102,7 +96,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param gradient if the L2 norm should be used.
 	 * @param edges output of the canny.
 	 */
-	void GripPipeline::cvCanny(cv::Mat &image, double thres1, double thres2, double apertureSize, bool gradient, cv::Mat &edges) {
+	void ShooterGripPipeline::cvCanny(cv::Mat &image, double thres1, double thres2, double apertureSize, bool gradient, cv::Mat &edges) {
 		cv::Canny(image, edges, thres1, thres2, (int)apertureSize, gradient);
 	}
 
@@ -113,7 +107,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param externalOnly if only external contours are to be found.
 	 * @param contours vector of contours to put contours in.
 	 */
-	void GripPipeline::findContours(cv::Mat &input, bool externalOnly, std::vector<std::vector<cv::Point> > &contours) {
+	void ShooterGripPipeline::findContours(cv::Mat &input, bool externalOnly, std::vector<std::vector<cv::Point> > &contours) {
 		std::vector<cv::Vec4i> hierarchy;
 		contours.clear();
 		int mode = externalOnly ? cv::RETR_EXTERNAL : cv::RETR_LIST;
@@ -138,7 +132,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 	 * @param maxRatio maximum ratio of width to height.
 	 * @param output vector of filtered contours.
 	 */
-	void GripPipeline::filterContours(std::vector<std::vector<cv::Point> > &inputContours, double minArea, double minPerimeter, double minWidth, double maxWidth, double minHeight, double maxHeight, double solidity[], double maxVertexCount, double minVertexCount, double minRatio, double maxRatio, std::vector<std::vector<cv::Point> > &output) {
+	void ShooterGripPipeline::filterContours(std::vector<std::vector<cv::Point> > &inputContours, double minArea, double minPerimeter, double minWidth, double maxWidth, double minHeight, double maxHeight, double solidity[], double maxVertexCount, double minVertexCount, double minRatio, double maxRatio, std::vector<std::vector<cv::Point> > &output) {
 		std::vector<cv::Point> hull;
 		output.clear();
 		for (std::vector<cv::Point> contour: inputContours) {
@@ -152,7 +146,7 @@ std::vector<std::vector<cv::Point> >* GripPipeline::getfilterContoursOutput(){
 			double solid = 100 * area / cv::contourArea(hull);
 			if (solid < solidity[0] || solid > solidity[1]) continue;
 			if (contour.size() < minVertexCount || contour.size() > maxVertexCount)	continue;
-			double ratio = bb.width / bb.height;
+			double ratio = (double) bb.width / (double) bb.height;
 			if (ratio < minRatio || ratio > maxRatio) continue;
 			output.push_back(contour);
 		}

@@ -10,9 +10,12 @@ using json = nlohmann::json;
 class Config {
 private:
   int shooterCameraID;
+  int gearCameraID;
   int filterLength;
   std::string ipAddress;
   int ipPort;
+  bool shooterCameraEnable;
+  bool gearCameraEnable;
 
 public:
   bool readFile(std::string filename) {
@@ -34,6 +37,39 @@ public:
     else {
       // Set the default and invalidate config
       j["Shooter_Camera_ID"] = 0;
+      isValid = false;
+    }
+
+    if(j.find("Shooter_Camera_Enable") != j.end() &&
+       j["Shooter_Camera_Enable"].is_boolean()) {
+      // there is an entry with key "foo"
+      shooterCameraEnable = j["Shooter_Camera_Enable"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Shooter_Camera_Enable"] = false;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_ID") != j.end() &&
+       j["Gear_Camera_ID"].is_number()) {
+      // there is an entry with key "foo"
+      gearCameraID = j["Gear_Camera_ID"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_ID"] = 0;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_Enable") != j.end() &&
+       j["Gear_Camera_Enable"].is_boolean()) {
+      // there is an entry with key "foo"
+      gearCameraEnable = j["Gear_Camera_Enable"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_Enable"] = false;
       isValid = false;
     }
 
@@ -80,9 +116,15 @@ public:
 
   int getShooterCameraID() { return shooterCameraID; }
 
+  int getGearCameraID() { return gearCameraID; }
+
   int getFilterLength() { return filterLength; }
 
   std::string getIPAddress() { return ipAddress; }
 
   int getIPPort() { return ipPort; }
+
+  bool getShooterCameraEnable() { return shooterCameraEnable; }
+
+  bool getGearCameraEnable() { return gearCameraEnable; }
 };

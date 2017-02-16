@@ -1,5 +1,5 @@
 #pragma once
-#include "GripPipeline.h"
+#include "ShooterGripPipeline.h"
 #include "WQueue.h"
 #include <atomic>
 #include <iostream>
@@ -13,9 +13,9 @@
 /*! \brief The Pipeline Thread handles information from the Camera Thread, does
  * image processing and sends information to the Network Thread.
  */
-class PipelineThread {
+class ShooterPipelineThread {
 private:
-  grip::GripPipeline pipeline; //!< Interface to pipeline code
+  grip::ShooterGripPipeline pipeline; //!< Interface to pipeline code
 
   wqueue<cv::Mat>& m_queue; //!< Input queue from the Camera Thread
   wqueue<std::pair<bool, int>>&
@@ -28,9 +28,9 @@ private:
   void run() {
     for(int i = 0;; i++) {
       std::unique_ptr<cv::Mat> frame = m_queue.remove();
-      pipeline.process(*frame);
+      pipeline.Process(*frame);
       std::vector<std::vector<cv::Point>>* contours =
-        pipeline.getfilterContoursOutput();
+        pipeline.GetFilterContoursOutput();
       int contour_center_total = 0;
       int contour_count = 0;
       cv::Size s = (*frame).size();
@@ -57,13 +57,13 @@ public:
   /*! \brief Constructor to initialize Pipeline Thread Class
    *  \warning Default constructor is not used
    */
-  PipelineThread() = delete;
+  ShooterPipelineThread() = delete;
 
   /*! \brief Constructor to initiailize Pipeline Thread Class
    *  \param [in] queue Input queue from the Camera Thread
    *  \param [in] queue_output Output queue to the Network Thread
    */
-  PipelineThread(wqueue<cv::Mat>& queue,
+  ShooterPipelineThread(wqueue<cv::Mat>& queue,
                  wqueue<std::pair<bool, int>>& queue_output)
       : m_queue(queue), m_queue_output(queue_output), m_stop(), m_thread() {}
 
@@ -76,5 +76,5 @@ public:
 
   /*! \brief Function to start the thread
   */
-  void start() { m_thread = std::thread(&PipelineThread::run, this); }
+  void start() { m_thread = std::thread(&ShooterPipelineThread::run, this); }
 };
