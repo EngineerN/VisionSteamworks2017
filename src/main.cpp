@@ -29,9 +29,9 @@ int main() {
 
   //!< Initialize queues used
   wqueue<cv::Mat> cameraQueue1;
-  wqueue<std::tuple<bool, int, int>> pipelineQueue1;
+  wqueue<std::tuple<bool, float, float>> pipelineQueue1;
   wqueue<cv::Mat> cameraQueue2;
-  wqueue<std::tuple<bool, int, int>> pipelineQueue2;
+  wqueue<std::tuple<bool, float, float>> pipelineQueue2;
 
   //!< Declaration of Camera Thread
   CameraThread cameraThread1(cameraQueue1, projectConfig.getShooterCameraID());
@@ -39,9 +39,9 @@ int main() {
   CameraThread cameraThread2(cameraQueue2, projectConfig.getGearCameraID());
 
   //!< Declaration of Pipeline Thread
-  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPixelOffset(), projectConfig.getShooterCameraYPixelOffset());
+  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPercentOffset(), projectConfig.getShooterCameraYPercentOffset());
   
-  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPixelOffset(), projectConfig.getGearCameraYPixelOffset());
+  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(), projectConfig.getGearCameraYPercentOffset());
 
   //!< Declaration of Network Thread
   NetworkThread networkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),

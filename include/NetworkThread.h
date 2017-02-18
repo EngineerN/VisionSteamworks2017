@@ -24,19 +24,19 @@ private:
   int slen;                    //!< Network Socket information
   int s;                       //!< Network Socket information
 
-  std::deque<std::tuple<bool, int, int>> m_filter_queue1; //!< Camera 1 Filter Queue
-  std::deque<std::tuple<bool, int, int>> m_filter_queue2; //!< Camera 2 Filter Queue
+  std::deque<std::tuple<bool, float, float>> m_filter_queue1; //!< Camera 1 Filter Queue
+  std::deque<std::tuple<bool, float, float>> m_filter_queue2; //!< Camera 2 Filter Queue
   unsigned short m_filter_length;                  //!< Max queue length
 
-  wqueue<std::tuple<bool, int, int>>& m_queue1; //!< Network Queue
-  wqueue<std::tuple<bool, int, int>>& m_queue2; //!< Network Queue
+  wqueue<std::tuple<bool, float, float>>& m_queue1; //!< Network Queue
+  wqueue<std::tuple<bool, float, float>>& m_queue2; //!< Network Queue
   std::atomic<bool> m_stop;              //!< Is the thread stopped?
   std::thread m_thread;                  //!< Thread to run operations
 
-  std::tuple<bool,int, int> filter(std::deque<std::tuple<bool, int, int>> filter_queue) {
+  std::tuple<bool, float, float> filter(std::deque<std::tuple<bool, float, float>> filter_queue) {
     bool in_center = false;
-    int average_x = 0;
-    int average_y = 0;
+    float average_x = 0;
+    float average_y = 0;
     for(auto it = filter_queue.begin(); it != filter_queue.end(); it++) {
       if(!std::get<0>((*it))) {
         continue;
@@ -47,8 +47,8 @@ private:
         in_center = true;
       }
     }
-    average_x /= (int)m_filter_length;
-    average_y /= (int)m_filter_length;
+    average_x /= (float)m_filter_length;
+    average_y /= (float)m_filter_length;
     return std::make_tuple(std::move(in_center), std::move(average_x), std::move(average_y));
   }
 
@@ -76,17 +76,17 @@ private:
         }
       }
       
-      std::tuple<bool, int, int> avg1, avg2;
+      std::tuple<bool, float, float> avg1, avg2;
 
       avg1 = filter(m_filter_queue1);
       avg2 = filter(m_filter_queue2);
 
       {
-        std::stringstream message;
-        message << std::to_string(std::get<1>(avg1)) << " "
-                << std::to_string(std::get<2>(avg1)) << " "
-                << std::to_string(std::get<1>(avg2)) << " "
-                << std::to_string(std::get<2>(avg2));
+        std::stringstream message; 
+        message << std::to_string((int)(std::get<1>(avg1) * 100.0f)) << " "
+                << std::to_string((int)(std::get<2>(avg1) * 100.0f)) << " "
+                << std::to_string((int)(std::get<1>(avg2) * 100.0f)) << " "
+                << std::to_string((int)(std::get<2>(avg2) * 100.0f));
         std::cout << "sending " << message.str() << std::endl;
         if(sendto(s, message.str().c_str(), message.str().size(), 0,
                   (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
@@ -111,8 +111,8 @@ public:
    *  \param [in] ip_address UDP Address to send the network packets
    *  \param [in] port UDP Port to send network packets accross
    */
-  NetworkThread(wqueue<std::tuple<bool, int, int>>& queue1,
-                wqueue<std::tuple<bool, int, int>>& queue2, 
+  NetworkThread(wqueue<std::tuple<bool, float, float>>& queue1,
+                wqueue<std::tuple<bool, float, float>>& queue2, 
                 int filter_length, std::string ip_address, int port)
       : m_queue1(queue1), m_queue2(queue2), m_stop(false), m_thread() {
     // start networking

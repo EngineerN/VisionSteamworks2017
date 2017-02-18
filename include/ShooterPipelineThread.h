@@ -18,12 +18,12 @@ private:
   grip::ShooterGripPipeline pipeline; //!< Interface to pipeline code
 
   wqueue<cv::Mat>& m_queue; //!< Input queue from the Camera Thread
-  wqueue<std::tuple<bool, int, int>>&
+  wqueue<std::tuple<bool, float, float>>&
   m_queue_output;         //!< Output queue to the Network Thread
   std::atomic<bool> m_stop; //!< Is the thread stopped?
   std::thread m_thread;     //!< Thread to run operations
-  int m_pixel_x_offset;
-  int m_pixel_y_offset;
+  float m_percent_x_offset;
+  float m_percent_y_offset;
 
   /*! \brief Function that the thread runs
   */
@@ -36,8 +36,8 @@ private:
       pipeline.Process(*frame);
       std::vector<std::vector<cv::Point>>* contours =
         pipeline.GetFilterContoursOutput();
-      int contour_x_total = 0;
-      int contour_y_total = 0;
+      float contour_x_total = 0.0f;
+      float contour_y_total = 0.0f;
       int contour_count = 0;
       cv::Size s = (*frame).size();
       int midwidth = s.width / 2;
@@ -50,11 +50,13 @@ private:
         contour_count++;
       }
       if(contour_count) {
+        float average_percent_from_center_x = (contour_x_total / ((float)contour_count * midwidth)) * 100.0f + m_percent_x_offset;
+        float average_percent_from_bottom_y = (contour_y_total / ((float)contour_count * s.height)) * 100.0f + m_percent_y_offset;
         m_queue_output.add(std::move(
-          std::make_tuple(true, contour_x_total / contour_count, contour_y_total / contour_count)));
+          std::make_tuple(true, average_percent_from_center_x, average_percent_from_bottom_y)));
       }
       else {
-        m_queue_output.add(std::move(std::make_tuple(false, 0, 0)));
+        m_queue_output.add(std::move(std::make_tuple(false, 0.0f, 0.0f)));
       }
     }
   }
@@ -70,9 +72,9 @@ public:
    *  \param [in] queue_output Output queue to the Network Thread
    */
   ShooterPipelineThread(wqueue<cv::Mat>& queue,
-                 wqueue<std::tuple<bool, int, int>>& queue_output,
-                 int pixel_x_offset, int pixel_y_offset)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_pixel_x_offset(pixel_x_offset), m_pixel_y_offset(pixel_y_offset) {}
+                 wqueue<std::tuple<bool, float, float>>& queue_output,
+                 float percent_x_offset, float percent_y_offset)
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset) {}
 
   /*! \brief Function to stop the thread
   */
