@@ -11,37 +11,29 @@ void GearGripPipeline::Process(cv::Mat& source0){
 	//Step HSV_Threshold0:
 	//input
 	cv::Mat hsvThresholdInput = source0;
-	double hsvThresholdHue[] = {30.755395683453237, 89.8471986417657};
-	double hsvThresholdSaturation[] = {51.31335609478519, 255.0};
-	double hsvThresholdValue[] = {55.03597122302158, 255.0};
+	double hsvThresholdHue[] = {0.0, 180.0};
+	double hsvThresholdSaturation[] = {0.0, 99.14261460101866};
+	double hsvThresholdValue[] = {160.52158273381295, 255.0};
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
-	//Step CV_Canny0:
-	//input
-	cv::Mat cvCannyImage = hsvThresholdOutput;
-	double cvCannyThreshold1 = 100.0;  // default Double
-	double cvCannyThreshold2 = 200.0;  // default Double
-	double cvCannyAperturesize = 3.0;  // default Double
-	bool cvCannyL2gradient = false;  // default Boolean
-	cvCanny(cvCannyImage, cvCannyThreshold1, cvCannyThreshold2, cvCannyAperturesize, cvCannyL2gradient, this->cvCannyOutput);
 	//Step Find_Contours0:
 	//input
-	cv::Mat findContoursInput = cvCannyOutput;
+	cv::Mat findContoursInput = hsvThresholdOutput;
 	bool findContoursExternalOnly = false;  // default Boolean
 	findContours(findContoursInput, findContoursExternalOnly, this->findContoursOutput);
 	//Step Filter_Contours0:
 	//input
 	std::vector<std::vector<cv::Point> > filterContoursContours = findContoursOutput;
-	double filterContoursMinArea = 20.0;  // default Double
+	double filterContoursMinArea = 0.0;  // default Double
 	double filterContoursMinPerimeter = 0.0;  // default Double
-	double filterContoursMinWidth = 0.0;  // default Double
-	double filterContoursMaxWidth = 1000.0;  // default Double
-	double filterContoursMinHeight = 1.0;  // default Double
-	double filterContoursMaxHeight = 1000.0;  // default Double
+	double filterContoursMinWidth = 30.0;  // default Double
+	double filterContoursMaxWidth = 50.0;  // default Double
+	double filterContoursMinHeight = 50.0;  // default Double
+	double filterContoursMaxHeight = 90.0;  // default Double
 	double filterContoursSolidity[] = {0.0, 100};
-	double filterContoursMaxVertices = 1000000.0;  // default Double
-	double filterContoursMinVertices = 0.0;  // default Double
+	double filterContoursMaxVertices = 10000.0;  // default Double
+	double filterContoursMinVertices = 5.0;  // default Double
 	double filterContoursMinRatio = 0.0;  // default Double
-	double filterContoursMaxRatio = 3.333;  // default Double
+	double filterContoursMaxRatio = 1.0;  // default Double
 	filterContours(filterContoursContours, filterContoursMinArea, filterContoursMinPerimeter, filterContoursMinWidth, filterContoursMaxWidth, filterContoursMinHeight, filterContoursMaxHeight, filterContoursSolidity, filterContoursMaxVertices, filterContoursMinVertices, filterContoursMinRatio, filterContoursMaxRatio, this->filterContoursOutput);
 }
 
@@ -51,13 +43,6 @@ void GearGripPipeline::Process(cv::Mat& source0){
  */
 cv::Mat* GearGripPipeline::GetHsvThresholdOutput(){
 	return &(this->hsvThresholdOutput);
-}
-/**
- * This method is a generated getter for the output of a CV_Canny.
- * @return Mat output from CV_Canny.
- */
-cv::Mat* GearGripPipeline::GetCvCannyOutput(){
-	return &(this->cvCannyOutput);
 }
 /**
  * This method is a generated getter for the output of a Find_Contours.
@@ -85,19 +70,6 @@ std::vector<std::vector<cv::Point> >* GearGripPipeline::GetFilterContoursOutput(
 	void GearGripPipeline::hsvThreshold(cv::Mat &input, double hue[], double sat[], double val[], cv::Mat &out) {
 		cv::cvtColor(input, out, cv::COLOR_BGR2HSV);
 		cv::inRange(out,cv::Scalar(hue[0], sat[0], val[0]), cv::Scalar(hue[1], sat[1], val[1]), out);
-	}
-
-	/**
-	 * Applies a canny edge detection to the image.
-	 * @param image image to use.
-	 * @param thres1 first threshold for the canny algorithm.
-	 * @param thres2 second threshold for the canny algorithm.
-	 * @param apertureSize aperture size for the Sobel operation.
-	 * @param gradient if the L2 norm should be used.
-	 * @param edges output of the canny.
-	 */
-	void GearGripPipeline::cvCanny(cv::Mat &image, double thres1, double thres2, double apertureSize, bool gradient, cv::Mat &edges) {
-		cv::Canny(image, edges, thres1, thres2, (int)apertureSize, gradient);
 	}
 
 	/**

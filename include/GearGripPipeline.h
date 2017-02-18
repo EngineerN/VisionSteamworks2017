@@ -22,11 +22,9 @@ namespace grip {
 class GearGripPipeline {
 	private:
 		cv::Mat hsvThresholdOutput;
-		cv::Mat cvCannyOutput;
 		std::vector<std::vector<cv::Point> > findContoursOutput;
 		std::vector<std::vector<cv::Point> > filterContoursOutput;
 		void hsvThreshold(cv::Mat &, double [], double [], double [], cv::Mat &);
-		void cvCanny(cv::Mat &, double , double , double , bool , cv::Mat &);
 		void findContours(cv::Mat &, bool , std::vector<std::vector<cv::Point> > &);
 		void filterContours(std::vector<std::vector<cv::Point> > &, double , double , double , double , double , double , double [], double , double , double , double , std::vector<std::vector<cv::Point> > &);
 
@@ -34,7 +32,6 @@ class GearGripPipeline {
 		GearGripPipeline();
 		void Process(cv::Mat& source0);
 		cv::Mat* GetHsvThresholdOutput();
-		cv::Mat* GetCvCannyOutput();
 		std::vector<std::vector<cv::Point> >* GetFindContoursOutput();
 		std::vector<std::vector<cv::Point> >* GetFilterContoursOutput();
 };

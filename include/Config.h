@@ -16,6 +16,10 @@ private:
   int ipPort;
   bool shooterCameraEnable;
   bool gearCameraEnable;
+  int gearCameraXPixelOffset;
+  int shooterCameraXPixelOffset;
+  int gearCameraYPixelOffset;
+  int shooterCameraYPixelOffset;
 
 public:
   bool readFile(std::string filename) {
@@ -40,6 +44,28 @@ public:
       isValid = false;
     }
 
+    if(j.find("Shooter_Camera_X_Pixel_Offset") != j.end() &&
+       j["Shooter_Camera_X_Pixel_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      shooterCameraXPixelOffset = j["Shooter_Camera_X_Pixel_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Shooter_Camera_X_Pixel_Offset"] = 0;
+      isValid = false;
+    }
+
+    if(j.find("Shooter_Camera_Y_Pixel_Offset") != j.end() &&
+       j["Shooter_Camera_Y_Pixel_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      shooterCameraYPixelOffset = j["Shooter_Camera_Y_Pixel_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Shooter_Camera_Y_Pixel_Offset"] = 0;
+      isValid = false;
+    }
+
     if(j.find("Shooter_Camera_Enable") != j.end() &&
        j["Shooter_Camera_Enable"].is_boolean()) {
       // there is an entry with key "foo"
@@ -59,6 +85,28 @@ public:
     else {
       // Set the default and invalidate config
       j["Gear_Camera_ID"] = 0;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_X_Pixel_Offset") != j.end() &&
+       j["Gear_Camera_X_Pixel_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      gearCameraXPixelOffset = j["Gear_Camera_X_Pixel_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_X_Pixel_Offset"] = 0;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_Y_Pixel_Offset") != j.end() &&
+       j["Gear_Camera_Y_Pixel_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      gearCameraYPixelOffset = j["Gear_Camera_Y_Pixel_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_Y_Pixel_Offset"] = 0;
       isValid = false;
     }
 
@@ -127,4 +175,12 @@ public:
   bool getShooterCameraEnable() { return shooterCameraEnable; }
 
   bool getGearCameraEnable() { return gearCameraEnable; }
+
+  int getShooterCameraXPixelOffset() { return shooterCameraXPixelOffset; }
+
+  int getShooterCameraYPixelOffset() { return shooterCameraXPixelOffset; }
+
+  int getGearCameraXPixelOffset() { return gearCameraXPixelOffset; }
+
+  int getGearCameraYPixelOffset() { return gearCameraYPixelOffset; }
 };

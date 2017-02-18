@@ -18,37 +18,43 @@ private:
   grip::ShooterGripPipeline pipeline; //!< Interface to pipeline code
 
   wqueue<cv::Mat>& m_queue; //!< Input queue from the Camera Thread
-  wqueue<std::pair<bool, int>>&
-    m_queue_output;         //!< Output queue to the Network Thread
+  wqueue<std::tuple<bool, int, int>>&
+  m_queue_output;         //!< Output queue to the Network Thread
   std::atomic<bool> m_stop; //!< Is the thread stopped?
   std::thread m_thread;     //!< Thread to run operations
+  int m_pixel_x_offset;
+  int m_pixel_y_offset;
 
   /*! \brief Function that the thread runs
   */
   void run() {
     for(int i = 0;; i++) {
+      if(m_stop) {
+        break;
+      }
       std::unique_ptr<cv::Mat> frame = m_queue.remove();
       pipeline.Process(*frame);
       std::vector<std::vector<cv::Point>>* contours =
         pipeline.GetFilterContoursOutput();
-      int contour_center_total = 0;
+      int contour_x_total = 0;
+      int contour_y_total = 0;
       int contour_count = 0;
       cv::Size s = (*frame).size();
       int midwidth = s.width / 2;
-      bool found_contour = false;
       for(auto& contour : *contours) {
         cv::Rect rect = cv::boundingRect(contour);
         int centerx = midwidth - rect.x + rect.width / 2;
-        contour_center_total += centerx;
+        int centery = rect.y + rect.height / 2;
+        contour_x_total += centerx;
+        contour_y_total += centery;
         contour_count++;
-        found_contour = true;
       }
-      if(found_contour) {
+      if(contour_count) {
         m_queue_output.add(std::move(
-          std::make_pair(true, contour_center_total / contour_count)));
+          std::make_tuple(true, contour_x_total / contour_count, contour_y_total / contour_count)));
       }
       else {
-        m_queue_output.add(std::move(std::make_pair(false, 0)));
+        m_queue_output.add(std::move(std::make_tuple(false, 0, 0)));
       }
     }
   }
@@ -64,8 +70,9 @@ public:
    *  \param [in] queue_output Output queue to the Network Thread
    */
   ShooterPipelineThread(wqueue<cv::Mat>& queue,
-                 wqueue<std::pair<bool, int>>& queue_output)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(), m_thread() {}
+                 wqueue<std::tuple<bool, int, int>>& queue_output,
+                 int pixel_x_offset, int pixel_y_offset)
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_pixel_x_offset(pixel_x_offset), m_pixel_y_offset(pixel_y_offset) {}
 
   /*! \brief Function to stop the thread
   */

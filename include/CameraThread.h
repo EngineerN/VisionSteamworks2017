@@ -32,7 +32,7 @@ public:
    *  \param [in] dev_id Camera id
    */
   CameraThread(wqueue<cv::Mat>& queue, int dev_id)
-      : m_queue(queue), m_stop(), m_thread() {
+      : m_queue(queue), m_stop(false), m_thread() {
     device_id = dev_id;
     initialize();
   }
@@ -63,6 +63,9 @@ private:
       initialize();
     }
     for(int i = 0;; i++) {
+      if(m_stop) {
+        break;
+      }
       cv::Mat frame;
       cap.read(frame);
       // check if we succeeded

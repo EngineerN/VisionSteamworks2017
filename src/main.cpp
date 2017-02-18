@@ -20,46 +20,48 @@ int main() {
     exit(0);
   }
 
+  if(!projectConfig.getShooterCameraEnable() &&
+     !projectConfig.getGearCameraEnable()) {
+    std::cout << "No Camera configuration has been set." 
+              << "Please enable a camera in config.json"
+              << '\n';
+  }
+
   //!< Initialize queues used
   wqueue<cv::Mat> cameraQueue1;
-  wqueue<std::pair<bool, int>> pipelineQueue1;
+  wqueue<std::tuple<bool, int, int>> pipelineQueue1;
   wqueue<cv::Mat> cameraQueue2;
-  wqueue<std::pair<bool, int>> pipelineQueue2;
+  wqueue<std::tuple<bool, int, int>> pipelineQueue2;
 
   //!< Declaration of Camera Thread
-  CameraThread* cameraThread1 =
-    new CameraThread(cameraQueue1, projectConfig.getShooterCameraID());
+  CameraThread cameraThread1(cameraQueue1, projectConfig.getShooterCameraID());
   
-  CameraThread* cameraThread2 =
-    new CameraThread(cameraQueue2, projectConfig.getGearCameraID());
+  CameraThread cameraThread2(cameraQueue2, projectConfig.getGearCameraID());
 
   //!< Declaration of Pipeline Thread
-  ShooterPipelineThread* pipelineThread1 =
-    new ShooterPipelineThread(cameraQueue1, pipelineQueue1);
+  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPixelOffset(), projectConfig.getShooterCameraYPixelOffset());
   
-  GearPipelineThread* pipelineThread2 =
-    new GearPipelineThread(cameraQueue2, pipelineQueue2);
+  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPixelOffset(), projectConfig.getGearCameraYPixelOffset());
 
   //!< Declaration of Network Thread
-  NetworkThread* networkThread =
-    new NetworkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
-                      projectConfig.getIPAddress(), projectConfig.getIPPort());
+  NetworkThread networkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
+                              projectConfig.getIPAddress(), projectConfig.getIPPort());
 
   //!< Start Threads
   if(projectConfig.getShooterCameraEnable()) {
-    cameraThread1->start();
-    pipelineThread1->start();
+    cameraThread1.start();
+    pipelineThread1.start();
   } 
 
   if(projectConfig.getGearCameraEnable()) {
-    cameraThread2->start();
-    pipelineThread2->start();
+    cameraThread2.start();
+    pipelineThread2.start();
   }
 
-  networkThread->start();
+  networkThread.start();
 
   // Ctrl-C to end program
-  printf("Enter Ctrl-C to end the program...\n");
+  std::cout << "Enter Ctrl-C to end the program..." << '\n';
   while(1) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
