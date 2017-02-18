@@ -83,10 +83,10 @@ private:
 
       {
         std::stringstream message;
-        message << std::to_string(std::get<0>(avg1)) << " " << std::to_string(std::get<1>(avg1))
-        << " " << std::to_string(std::get<2>(avg1)) << " "
-        << std::to_string(std::get<0>(avg2)) << " " << std::to_string(std::get<1>(avg2))
-        << " " << std::to_string(std::get<2>(avg2));
+        message << std::to_string(std::get<1>(avg1)) << " "
+                << std::to_string(std::get<2>(avg1)) << " "
+                << std::to_string(std::get<1>(avg2)) << " "
+                << std::to_string(std::get<2>(avg2));
         std::cout << "sending " << message.str() << std::endl;
         if(sendto(s, message.str().c_str(), message.str().size(), 0,
                   (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
