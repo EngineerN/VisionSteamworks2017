@@ -8,9 +8,21 @@ ShooterGripPipeline::ShooterGripPipeline() {
 * Runs an iteration of the pipeline and updates outputs.
 */
 void ShooterGripPipeline::Process(cv::Mat& source0){
+	//Step RGB_Threshold0:
+	//input
+	cv::Mat rgbThresholdInput = source0;
+	double rgbThresholdRed[] = {0.0, 255.0};
+	double rgbThresholdGreen[] = {0.0, 255.0};
+	double rgbThresholdBlue[] = {0.0, 237.68251273344652};
+	rgbThreshold(rgbThresholdInput, rgbThresholdRed, rgbThresholdGreen, rgbThresholdBlue, this->rgbThresholdOutput);
+	//Step Mask0:
+	//input
+	cv::Mat maskInput = source0;
+	cv::Mat maskMask = rgbThresholdOutput;
+	mask(maskInput, maskMask, this->maskOutput);
 	//Step HSV_Threshold0:
 	//input
-	cv::Mat hsvThresholdInput = source0;
+	cv::Mat hsvThresholdInput = maskOutput;
 	double hsvThresholdHue[] = {0.0, 180.0};
 	double hsvThresholdSaturation[] = {0.0, 99.14261460101866};
 	double hsvThresholdValue[] = {160.52158273381295, 255.0};
@@ -38,6 +50,20 @@ void ShooterGripPipeline::Process(cv::Mat& source0){
 }
 
 /**
+ * This method is a generated getter for the output of a RGB_Threshold.
+ * @return Mat output from RGB_Threshold.
+ */
+cv::Mat* ShooterGripPipeline::GetRgbThresholdOutput(){
+	return &(this->rgbThresholdOutput);
+}
+/**
+ * This method is a generated getter for the output of a Mask.
+ * @return Mat output from Mask.
+ */
+cv::Mat* ShooterGripPipeline::GetMaskOutput(){
+	return &(this->maskOutput);
+}
+/**
  * This method is a generated getter for the output of a HSV_Threshold.
  * @return Mat output from HSV_Threshold.
  */
@@ -58,6 +84,33 @@ std::vector<std::vector<cv::Point> >* ShooterGripPipeline::GetFindContoursOutput
 std::vector<std::vector<cv::Point> >* ShooterGripPipeline::GetFilterContoursOutput(){
 	return &(this->filterContoursOutput);
 }
+	/**
+	 * Segment an image based on color ranges.
+	 *
+	 * @param input The image on which to perform the RGB threshold.
+	 * @param red The min and max red.
+	 * @param green The min and max green.
+	 * @param blue The min and max blue.
+	 * @param output The image in which to store the output.
+	 */
+	void ShooterGripPipeline::rgbThreshold(cv::Mat &input, double red[], double green[], double blue[], cv::Mat &output) {
+		cv::cvtColor(input, output, cv::COLOR_BGR2RGB);
+		cv::inRange(output, cv::Scalar(red[0], green[0], blue[0]), cv::Scalar(red[1], green[1], blue[1]), output);
+	}
+
+		/**
+		 * Filter out an area of an image using a binary mask.
+		 *
+		 * @param input The image on which the mask filters.
+		 * @param mask The binary image that is used to filter.
+		 * @param output The image in which to store the output.
+		 */
+		void ShooterGripPipeline::mask(cv::Mat &input, cv::Mat &mask, cv::Mat &output) {
+			mask.convertTo(mask, CV_8UC1);
+			cv::bitwise_xor(output, output, output);
+			input.copyTo(output, mask);
+		}
+
 	/**
 	 * Segment an image based on hue, saturation, and value ranges.
 	 *
