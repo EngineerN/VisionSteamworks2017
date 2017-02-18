@@ -22,12 +22,17 @@ private:
   m_queue_output;         //!< Output queue to the Network Thread
   std::atomic<bool> m_stop; //!< Is the thread stopped?
   std::thread m_thread;     //!< Thread to run operations
-  float m_percent_x_offset;
-  float m_percent_y_offset;
+  const float m_percent_x_offset;
+  const float m_percent_y_offset;
+  const bool m_debug_enable;
 
   /*! \brief Function that the thread runs
   */
   void run() {
+    if(m_debug_enable) {
+      cv::namedWindow("Gear Camera", cv::WINDOW_NORMAL);
+      cv::namedWindow("Gear Camera Threshold", cv::WINDOW_NORMAL);
+    }
     for(int i = 0;; i++) {
       if(m_stop) {
         break;
@@ -36,6 +41,10 @@ private:
       pipeline.Process(*frame);
       std::vector<std::vector<cv::Point>>* contours =
         pipeline.GetFilterContoursOutput();
+      if(m_debug_enable) {
+        cv::imshow("Gear Camera", *frame);
+        cv::imshow("Gear Camera Threshold", *pipeline.GetHsvThresholdOutput());
+      }
       float contour_x_total = 0.0f;
       float contour_y_total = 0.0f;
       int contour_count = 0;
@@ -74,8 +83,8 @@ public:
    */
   GearPipelineThread(wqueue<cv::Mat>& queue,
                  wqueue<std::tuple<bool, float, float>>& queue_output,
-                 float percent_x_offset, float percent_y_offset)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset) {}
+                 float percent_x_offset, float percent_y_offset, bool debug_enable)
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable) {}
 
   /*! \brief Function to stop the thread
   */

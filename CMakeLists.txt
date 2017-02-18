@@ -17,11 +17,12 @@ endif(COMMAND cmake_policy)
 
 SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
-find_package(OpenCV 2.4 COMPONENTS core highgui imgproc features2d REQUIRED)
+
+
+find_package(OpenCV 2 COMPONENTS core highgui imgproc features2d gpu REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-link_directories(${OpenCV_LIBRARY_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) 
 
 SET(SRC_FOLDER src)
 SET(INCLUDE_FOLDER include)

@@ -39,9 +39,9 @@ int main() {
   CameraThread cameraThread2(cameraQueue2, projectConfig.getGearCameraID());
 
   //!< Declaration of Pipeline Thread
-  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPercentOffset(), projectConfig.getShooterCameraYPercentOffset());
+  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPercentOffset(), projectConfig.getShooterCameraYPercentOffset(), projectConfig.getDebugEnable());
   
-  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(), projectConfig.getGearCameraYPercentOffset());
+  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(), projectConfig.getGearCameraYPercentOffset(), projectConfig.getDebugEnable());
 
   //!< Declaration of Network Thread
   NetworkThread networkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
