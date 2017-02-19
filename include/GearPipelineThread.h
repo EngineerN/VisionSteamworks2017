@@ -19,7 +19,7 @@ private:
 
   wqueue<cv::Mat>& m_queue; //!< Input queue from the Camera Thread
   wqueue<std::tuple<bool, float, float>>&
-  m_queue_output;         //!< Output queue to the Network Thread
+    m_queue_output;         //!< Output queue to the Network Thread
   std::atomic<bool> m_stop; //!< Is the thread stopped?
   std::thread m_thread;     //!< Thread to run operations
   const float m_percent_x_offset;
@@ -42,16 +42,19 @@ private:
         cv::imshow("Gear Camera", *frame);
         cv::imshow("Gear Threshold", *pipeline.GetHsvThresholdOutput());
         std::vector<std::vector<cv::Point>>* find_contours =
-        pipeline.GetFindContoursOutput();
-        cv::Mat drawingFindContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
-        for (size_t i = 0; i < (*find_contours).size(); ++i) {
-          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+          pipeline.GetFindContoursOutput();
+        cv::Mat drawingFindContours = cv::Mat::zeros((*frame).size(), CV_8UC3);
+        for(size_t i = 0; i < (*find_contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar(
+            rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
           cv::drawContours(drawingFindContours, *find_contours, (int)i, color);
         }
-        imshow("Gear Find Contours", drawingFindContours );        
-        cv::Mat drawingFilterContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
-        for (size_t i = 0; i < (*contours).size(); ++i) {
-          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+        imshow("Gear Find Contours", drawingFindContours);
+        cv::Mat drawingFilterContours =
+          cv::Mat::zeros((*frame).size(), CV_8UC3);
+        for(size_t i = 0; i < (*contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar(
+            rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
           cv::drawContours(drawingFilterContours, *contours, (int)i, color);
         }
         imshow("Gear Filter Contours", drawingFilterContours);
@@ -71,10 +74,14 @@ private:
         contour_count++;
       }
       if(contour_count) {
-        float average_percent_from_center_x = (contour_x_total / (float)(contour_count * midwidth)) * 100.0f + m_percent_x_offset;
-        float average_percent_from_bottom_y = (contour_y_total / (float)(contour_count * s.height)) * 100.0f + m_percent_y_offset;
-        m_queue_output.add(std::move(
-          std::make_tuple(true, average_percent_from_center_x, average_percent_from_bottom_y)));
+        float average_percent_from_center_x =
+          (contour_x_total / (float)(contour_count * midwidth)) * 100.0f +
+          m_percent_x_offset;
+        float average_percent_from_bottom_y =
+          (contour_y_total / (float)(contour_count * s.height)) * 100.0f +
+          m_percent_y_offset;
+        m_queue_output.add(std::move(std::make_tuple(
+          true, average_percent_from_center_x, average_percent_from_bottom_y)));
       }
       else {
         m_queue_output.add(std::move(std::make_tuple(false, 0.0f, 0.0f)));
@@ -88,19 +95,21 @@ public:
    */
   GearPipelineThread() = delete;
 
-  ~GearPipelineThread() {
-    stop();
-  }
+  ~GearPipelineThread() { stop(); }
 
   /*! \brief Constructor to initiailize Pipeline Thread Class
    *  \param [in] queue Input queue from the Camera Thread
    *  \param [in] queue_output Output queue to the Network Thread
-   *  \param [in] pixel_x_offset X axis pixel offset for 
+   *  \param [in] pixel_x_offset X axis pixel offset for
    */
   GearPipelineThread(wqueue<cv::Mat>& queue,
-                 wqueue<std::tuple<bool, float, float>>& queue_output,
-                 float percent_x_offset, float percent_y_offset, bool debug_enable)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable), rng(12345) {}
+                     wqueue<std::tuple<bool, float, float>>& queue_output,
+                     float percent_x_offset, float percent_y_offset,
+                     bool debug_enable)
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(),
+        m_percent_x_offset(percent_x_offset),
+        m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable),
+        rng(12345) {}
 
   /*! \brief Function to stop the thread
   */

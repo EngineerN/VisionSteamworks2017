@@ -34,8 +34,7 @@ public:
     }
     i.close();
 
-    if(j.find("Debug_Enable") != j.end() &&
-       j["Debug_Enable"].is_boolean()) {
+    if(j.find("Debug_Enable") != j.end() && j["Debug_Enable"].is_boolean()) {
       // there is an entry with key "foo"
       debugEnable = j["Debug_Enable"];
     }
@@ -89,8 +88,7 @@ public:
       isValid = false;
     }
 
-    if(j.find("Gear_Camera_ID") != j.end() &&
-       j["Gear_Camera_ID"].is_number()) {
+    if(j.find("Gear_Camera_ID") != j.end() && j["Gear_Camera_ID"].is_number()) {
       // there is an entry with key "foo"
       gearCameraID = j["Gear_Camera_ID"];
     }

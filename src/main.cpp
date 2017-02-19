@@ -1,8 +1,8 @@
 #include "CameraThread.h"
 #include "Config.h"
+#include "GearPipelineThread.h"
 #include "NetworkThread.h"
 #include "ShooterPipelineThread.h"
-#include "GearPipelineThread.h"
 #include "WQueue.h"
 #include <chrono>
 #include <iostream>
@@ -22,9 +22,8 @@ int main() {
 
   if(!projectConfig.getShooterCameraEnable() &&
      !projectConfig.getGearCameraEnable()) {
-    std::cout << "No Camera configuration has been set." 
-              << "Please enable a camera in config.json"
-              << '\n';
+    std::cout << "No Camera configuration has been set."
+              << "Please enable a camera in config.json" << '\n';
   }
 
   //!< Initialize queues used
@@ -35,23 +34,32 @@ int main() {
 
   //!< Declaration of Camera Thread
   CameraThread cameraThread1(cameraQueue1, projectConfig.getShooterCameraID());
-  
+
   CameraThread cameraThread2(cameraQueue2, projectConfig.getGearCameraID());
 
   //!< Declaration of Pipeline Thread
-  ShooterPipelineThread pipelineThread1(cameraQueue1, pipelineQueue1, projectConfig.getShooterCameraXPercentOffset(), projectConfig.getShooterCameraYPercentOffset(), projectConfig.getDebugEnable());
-  
-  GearPipelineThread pipelineThread2(cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(), projectConfig.getGearCameraYPercentOffset(), projectConfig.getDebugEnable());
+  ShooterPipelineThread pipelineThread1(
+    cameraQueue1, pipelineQueue1,
+    projectConfig.getShooterCameraXPercentOffset(),
+    projectConfig.getShooterCameraYPercentOffset(),
+    projectConfig.getDebugEnable());
+
+  GearPipelineThread pipelineThread2(
+    cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(),
+    projectConfig.getGearCameraYPercentOffset(),
+    projectConfig.getDebugEnable());
 
   //!< Declaration of Network Thread
-  NetworkThread networkThread(pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
-                              projectConfig.getIPAddress(), projectConfig.getIPPort());
+  NetworkThread networkThread(
+    pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
+    projectConfig.getIPAddress(), projectConfig.getIPPort(),
+    projectConfig.getDebugEnable());
 
   //!< Start Threads
   if(projectConfig.getShooterCameraEnable()) {
     cameraThread1.start();
     pipelineThread1.start();
-  } 
+  }
 
   if(projectConfig.getGearCameraEnable()) {
     cameraThread2.start();

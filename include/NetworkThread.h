@@ -6,11 +6,11 @@
 #include <deque>
 #include <iostream>
 #include <netinet/in.h>
-#include <tuple>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <thread>
-#include <sys/time.h>
+#include <tuple>
 #define WSAGetLastError() (errno)
 #define SOCKET_ERROR (-1)
 
@@ -24,16 +24,20 @@ private:
   int slen;                    //!< Network Socket information
   int s;                       //!< Network Socket information
 
-  std::deque<std::tuple<bool, float, float>> m_filter_queue1; //!< Camera 1 Filter Queue
-  std::deque<std::tuple<bool, float, float>> m_filter_queue2; //!< Camera 2 Filter Queue
-  unsigned short m_filter_length;                  //!< Max queue length
+  std::deque<std::tuple<bool, float, float>>
+    m_filter_queue1; //!< Camera 1 Filter Queue
+  std::deque<std::tuple<bool, float, float>>
+    m_filter_queue2;                  //!< Camera 2 Filter Queue
+  const unsigned int m_filter_length; //!< Max queue length
+  const bool m_debug_enable;
 
   wqueue<std::tuple<bool, float, float>>& m_queue1; //!< Network Queue
   wqueue<std::tuple<bool, float, float>>& m_queue2; //!< Network Queue
-  std::atomic<bool> m_stop;              //!< Is the thread stopped?
-  std::thread m_thread;                  //!< Thread to run operations
+  std::atomic<bool> m_stop;                         //!< Is the thread stopped?
+  std::thread m_thread; //!< Thread to run operations
 
-  std::tuple<bool, float, float> filter(std::deque<std::tuple<bool, float, float>> filter_queue) {
+  std::tuple<bool, float, float>
+  filter(std::deque<std::tuple<bool, float, float>> filter_queue) {
     bool in_center = false;
     float average_x = 0;
     float average_y = 0;
@@ -49,9 +53,9 @@ private:
     }
     average_x /= (float)m_filter_length;
     average_y /= (float)m_filter_length;
-    return std::make_tuple(std::move(in_center), std::move(average_x), std::move(average_y));
+    return std::make_tuple(std::move(in_center), std::move(average_x),
+                           std::move(average_y));
   }
-
 
   /*! \brief Function that the thread runs
   */
@@ -75,19 +79,23 @@ private:
           m_filter_queue2.pop_front();
         }
       }
-      
+
       std::tuple<bool, float, float> avg1, avg2;
 
       avg1 = filter(m_filter_queue1);
       avg2 = filter(m_filter_queue2);
 
       {
-        std::stringstream message; 
+        std::stringstream message;
         message << std::to_string((int)(std::get<1>(avg1) * 100.0f)) << " "
                 << std::to_string((int)(std::get<2>(avg1) * 100.0f)) << " "
                 << std::to_string((int)(std::get<1>(avg2) * 100.0f)) << " "
                 << std::to_string((int)(std::get<2>(avg2) * 100.0f));
-        std::cout << "sending " << message.str() << std::endl;
+
+        if(m_debug_enable) {
+          std::cout << "sending " << message.str() << std::endl;
+        }
+
         if(sendto(s, message.str().c_str(), message.str().size(), 0,
                   (struct sockaddr*)&si_other, slen) == SOCKET_ERROR) {
           std::cout << "sendto() failed with error code : " << WSAGetLastError()
@@ -105,9 +113,7 @@ public:
    */
   NetworkThread() = delete;
 
-  ~NetworkThread() {
-    stop();
-  }
+  ~NetworkThread() { stop(); }
 
   /*! \brief Constructor to initialize Network Thread Class
    *  \param [in] queue Queue from the Pipeline Thread
@@ -116,11 +122,12 @@ public:
    *  \param [in] port UDP Port to send network packets accross
    */
   NetworkThread(wqueue<std::tuple<bool, float, float>>& queue1,
-                wqueue<std::tuple<bool, float, float>>& queue2, 
-                int filter_length, std::string ip_address, int port)
-      : m_queue1(queue1), m_queue2(queue2), m_stop(false), m_thread() {
+                wqueue<std::tuple<bool, float, float>>& queue2,
+                unsigned int filter_length, std::string ip_address, int port,
+                bool debug_enable)
+      : m_filter_length(filter_length), m_debug_enable(debug_enable),
+        m_queue1(queue1), m_queue2(queue2), m_stop(false), m_thread() {
     // start networking
-    m_filter_length = filter_length;
     s = sizeof(si_other);
     slen = sizeof(si_other);
 
