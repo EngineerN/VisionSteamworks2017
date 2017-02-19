@@ -10,6 +10,8 @@
 #include <thread>
 #include <utility>
 
+
+
 /*! \brief The Pipeline Thread handles information from the Camera Thread, does
  * image processing and sends information to the Network Thread.
  */
@@ -25,16 +27,11 @@ private:
   const float m_percent_x_offset;
   const float m_percent_y_offset;
   const bool m_debug_enable;
+  cv::RNG rng;
 
   /*! \brief Function that the thread runs
   */
   void run() {
-    if(m_debug_enable) {
-      cv::namedWindow("Shooter Camera", cv::WINDOW_NORMAL);
-      cv::namedWindow("Shooter Camera RGB", cv::WINDOW_NORMAL);
-      cv::namedWindow("Shooter Camera Mask", cv::WINDOW_NORMAL);
-      cv::namedWindow("Shooter Camera Threshold", cv::WINDOW_NORMAL);
-    }
     for(int i = 0;; i++) {
       if(m_stop) {
         break;
@@ -45,9 +42,24 @@ private:
         pipeline.GetFilterContoursOutput();
       if(m_debug_enable) {
         cv::imshow("Shooter Camera", *frame);
-        cv::imshow("Shooter Camera RGB", *pipeline.GetRgbThresholdOutput());
-        cv::imshow("Shooter Camera Mask", *pipeline.GetMaskOutput());
-        cv::imshow("Shooter Camera Threshold", *pipeline.GetHsvThresholdOutput());
+        cv::imshow("Shooter RGB", *pipeline.GetRgbThresholdOutput());
+        cv::imshow("Shooter Mask", *pipeline.GetMaskOutput());
+        cv::imshow("Shooter Threshold", *pipeline.GetHsvThresholdOutput());
+        std::vector<std::vector<cv::Point>>* find_contours =
+        pipeline.GetFindContoursOutput();
+        cv::Mat drawingFindContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
+        for (size_t i = 0; i < (*find_contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+          cv::drawContours(drawingFindContours, *find_contours, (int)i, color);
+        }
+        imshow("Shooter Find Contours", drawingFindContours );        
+        cv::Mat drawingFilterContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
+        for (size_t i = 0; i < (*contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+          cv::drawContours(drawingFilterContours, *contours, (int)i, color);
+        }
+        imshow("Shooter Filter Contours", drawingFilterContours);
+        cv::waitKey(10);
       }
       float contour_x_total = 0.0f;
       float contour_y_total = 0.0f;
@@ -80,6 +92,10 @@ public:
    */
   ShooterPipelineThread() = delete;
 
+  ~ShooterPipelineThread() {
+    stop();
+  }
+
   /*! \brief Constructor to initiailize Pipeline Thread Class
    *  \param [in] queue Input queue from the Camera Thread
    *  \param [in] queue_output Output queue to the Network Thread
@@ -87,7 +103,7 @@ public:
   ShooterPipelineThread(wqueue<cv::Mat>& queue,
                  wqueue<std::tuple<bool, float, float>>& queue_output,
                  float percent_x_offset, float percent_y_offset, bool debug_enable)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable) {}
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable), rng(12345) {}
 
   /*! \brief Function to stop the thread
   */

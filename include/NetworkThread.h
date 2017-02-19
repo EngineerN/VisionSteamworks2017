@@ -105,6 +105,10 @@ public:
    */
   NetworkThread() = delete;
 
+  ~NetworkThread() {
+    stop();
+  }
+
   /*! \brief Constructor to initialize Network Thread Class
    *  \param [in] queue Queue from the Pipeline Thread
    *  \param [in] filter_length Length of the filter used by the Network Thread

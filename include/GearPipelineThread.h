@@ -25,14 +25,11 @@ private:
   const float m_percent_x_offset;
   const float m_percent_y_offset;
   const bool m_debug_enable;
+  cv::RNG rng;
 
   /*! \brief Function that the thread runs
   */
   void run() {
-    if(m_debug_enable) {
-      cv::namedWindow("Gear Camera", cv::WINDOW_NORMAL);
-      cv::namedWindow("Gear Camera Threshold", cv::WINDOW_NORMAL);
-    }
     for(int i = 0;; i++) {
       if(m_stop) {
         break;
@@ -43,7 +40,22 @@ private:
         pipeline.GetFilterContoursOutput();
       if(m_debug_enable) {
         cv::imshow("Gear Camera", *frame);
-        cv::imshow("Gear Camera Threshold", *pipeline.GetHsvThresholdOutput());
+        cv::imshow("Gear Threshold", *pipeline.GetHsvThresholdOutput());
+        std::vector<std::vector<cv::Point>>* find_contours =
+        pipeline.GetFindContoursOutput();
+        cv::Mat drawingFindContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
+        for (size_t i = 0; i < (*find_contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+          cv::drawContours(drawingFindContours, *find_contours, (int)i, color);
+        }
+        imshow("Gear Find Contours", drawingFindContours );        
+        cv::Mat drawingFilterContours = cv::Mat::zeros( (*frame).size(), CV_8UC3 );
+        for (size_t i = 0; i < (*contours).size(); ++i) {
+          cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+          cv::drawContours(drawingFilterContours, *contours, (int)i, color);
+        }
+        imshow("Gear Filter Contours", drawingFilterContours);
+        cv::waitKey(10);
       }
       float contour_x_total = 0.0f;
       float contour_y_total = 0.0f;
@@ -76,6 +88,10 @@ public:
    */
   GearPipelineThread() = delete;
 
+  ~GearPipelineThread() {
+    stop();
+  }
+
   /*! \brief Constructor to initiailize Pipeline Thread Class
    *  \param [in] queue Input queue from the Camera Thread
    *  \param [in] queue_output Output queue to the Network Thread
@@ -84,7 +100,7 @@ public:
   GearPipelineThread(wqueue<cv::Mat>& queue,
                  wqueue<std::tuple<bool, float, float>>& queue_output,
                  float percent_x_offset, float percent_y_offset, bool debug_enable)
-      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable) {}
+      : m_queue(queue), m_queue_output(queue_output), m_stop(false), m_thread(), m_percent_x_offset(percent_x_offset), m_percent_y_offset(percent_y_offset), m_debug_enable(debug_enable), rng(12345) {}
 
   /*! \brief Function to stop the thread
   */
