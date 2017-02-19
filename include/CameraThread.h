@@ -27,6 +27,10 @@ public:
    */
   CameraThread() = delete;
 
+  ~CameraThread() {
+    stop();
+  }
+
   /*! \brief Constructor to initialize Camera Thread Class
    *  \param [in] queue Queue to dump the camera frames to
    *  \param [in] dev_id Camera id

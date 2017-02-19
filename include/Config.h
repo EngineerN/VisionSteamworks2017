@@ -20,6 +20,7 @@ private:
   float shooterCameraXPercentOffset;
   float gearCameraYPercentOffset;
   float shooterCameraYPercentOffset;
+  bool debugEnable;
 
 public:
   bool readFile(std::string filename) {
@@ -32,6 +33,17 @@ public:
       i >> j;
     }
     i.close();
+
+    if(j.find("Debug_Enable") != j.end() &&
+       j["Debug_Enable"].is_boolean()) {
+      // there is an entry with key "foo"
+      debugEnable = j["Debug_Enable"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Debug_Enable"] = false;
+      isValid = false;
+    }
 
     if(j.find("Shooter_Camera_ID") != j.end() &&
        j["Shooter_Camera_ID"].is_number()) {
@@ -183,4 +195,6 @@ public:
   int getGearCameraXPercentOffset() { return gearCameraXPercentOffset; }
 
   int getGearCameraYPercentOffset() { return gearCameraYPercentOffset; }
+
+  bool getDebugEnable() { return debugEnable; }
 };
