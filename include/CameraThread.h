@@ -36,7 +36,6 @@ public:
   CameraThread(wqueue<cv::Mat>& queue, int dev_id)
       : m_queue(queue), m_stop(false), m_thread() {
     device_id = dev_id;
-    initialize();
   }
 
   /*! \brief Function to stop the thread
