@@ -9,18 +9,27 @@ using json = nlohmann::json;
 
 class Config {
 private:
+  bool debugEnable;
+
   int shooterCameraID;
-  int gearCameraID;
-  int filterLength;
+  float shooterCameraXPercentOffset;
+  float shooterCameraYPercentOffset;
+  bool shooterCameraEnable;
+
+  int gearCamera1ID;
+  float gearCamera1XPercentOffset;
+  float gearCamera1YPercentOffset;
+  bool gearCamera1Enable;
+
+  int gearCamera2ID;
+  float gearCamera2XPercentOffset;
+  float gearCamera2YPercentOffset;
+  bool gearCamera2Enable;
+
   std::string ipAddress;
   int ipPort;
-  bool shooterCameraEnable;
-  bool gearCameraEnable;
-  float gearCameraXPercentOffset;
-  float shooterCameraXPercentOffset;
-  float gearCameraYPercentOffset;
-  float shooterCameraYPercentOffset;
-  bool debugEnable;
+  int filterLength;
+
 
 public:
   bool readFile(std::string filename) {
@@ -88,46 +97,89 @@ public:
       isValid = false;
     }
 
-    if(j.find("Gear_Camera_ID") != j.end() && j["Gear_Camera_ID"].is_number()) {
+    if(j.find("Gear_Camera_1_ID") != j.end() && j["Gear_Camera_1_ID"].is_number()) {
       // there is an entry with key "foo"
-      gearCameraID = j["Gear_Camera_ID"];
+      gearCamera1ID = j["Gear_Camera_1_ID"];
     }
     else {
       // Set the default and invalidate config
-      j["Gear_Camera_ID"] = 0;
+      j["Gear_Camera_1_ID"] = 1;
       isValid = false;
     }
 
-    if(j.find("Gear_Camera_X_Percent_Offset") != j.end() &&
-       j["Gear_Camera_X_Percent_Offset"].is_number()) {
+    if(j.find("Gear_Camera_1_X_Percent_Offset") != j.end() &&
+       j["Gear_Camera_1_X_Percent_Offset"].is_number()) {
       // there is an entry with key "foo"
-      gearCameraXPercentOffset = j["Gear_Camera_X_Percent_Offset"];
+      gearCamera1XPercentOffset = j["Gear_Camera_1_X_Percent_Offset"];
     }
     else {
       // Set the default and invalidate config
-      j["Gear_Camera_X_Percent_Offset"] = 0.0f;
+      j["Gear_Camera_1_X_Percent_Offset"] = 0.0f;
       isValid = false;
     }
 
-    if(j.find("Gear_Camera_Y_Percent_Offset") != j.end() &&
-       j["Gear_Camera_Y_Percent_Offset"].is_number()) {
+    if(j.find("Gear_Camera_1_Y_Percent_Offset") != j.end() &&
+       j["Gear_Camera_1_Y_Percent_Offset"].is_number()) {
       // there is an entry with key "foo"
-      gearCameraYPercentOffset = j["Gear_Camera_Y_Percent_Offset"];
+      gearCamera1YPercentOffset = j["Gear_Camera_1_Y_Percent_Offset"];
     }
     else {
       // Set the default and invalidate config
-      j["Gear_Camera_Y_Percent_Offset"] = 0.0f;
+      j["Gear_Camera_1_Y_Percent_Offset"] = 0.0f;
       isValid = false;
     }
 
-    if(j.find("Gear_Camera_Enable") != j.end() &&
-       j["Gear_Camera_Enable"].is_boolean()) {
+    if(j.find("Gear_Camera_1_Enable") != j.end() &&
+       j["Gear_Camera_1_Enable"].is_boolean()) {
       // there is an entry with key "foo"
-      gearCameraEnable = j["Gear_Camera_Enable"];
+      gearCamera1Enable = j["Gear_Camera_1_Enable"];
     }
     else {
       // Set the default and invalidate config
-      j["Gear_Camera_Enable"] = false;
+      j["Gear_Camera_1_Enable"] = false;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_2_ID") != j.end() && j["Gear_Camera_2_ID"].is_number()) {
+      // there is an entry with key "foo"
+      gearCamera2ID = j["Gear_Camera_2_ID"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_2_ID"] = 2;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_2_X_Percent_Offset") != j.end() &&
+       j["Gear_Camera_2_X_Percent_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      gearCamera2XPercentOffset = j["Gear_Camera_2_X_Percent_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_2_X_Percent_Offset"] = 0.0f;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_2_Y_Percent_Offset") != j.end() &&
+       j["Gear_Camera_2_Y_Percent_Offset"].is_number()) {
+      // there is an entry with key "foo"
+      gearCamera2YPercentOffset = j["Gear_Camera_2_Y_Percent_Offset"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_2_Y_Percent_Offset"] = 0.0f;
+      isValid = false;
+    }
+
+    if(j.find("Gear_Camera_2_Enable") != j.end() &&
+       j["Gear_Camera_2_Enable"].is_boolean()) {
+      // there is an entry with key "foo"
+      gearCamera2Enable = j["Gear_Camera_2_Enable"];
+    }
+    else {
+      // Set the default and invalidate config
+      j["Gear_Camera_2_Enable"] = false;
       isValid = false;
     }
 
@@ -172,27 +224,36 @@ public:
     return isValid;
   }
 
+  bool getDebugEnable() { return debugEnable; }
+
   int getShooterCameraID() { return shooterCameraID; }
 
-  int getGearCameraID() { return gearCameraID; }
+  int getShooterCameraXPercentOffset() { return shooterCameraXPercentOffset; }
+
+  int getShooterCameraYPercentOffset() { return shooterCameraXPercentOffset; }
+
+  bool getShooterCameraEnable() { return shooterCameraEnable; }
+
+  int getGearCamera1ID() { return gearCamera1ID; }
+
+  int getGearCamera1XPercentOffset() { return gearCamera1XPercentOffset; }
+
+  int getGearCamera1YPercentOffset() { return gearCamera1YPercentOffset; }
+
+  bool getGearCamera1Enable() { return gearCamera1Enable; }
+
+  int getGearCamera2ID() { return gearCamera2ID; }
+
+  int getGearCamera2XPercentOffset() { return gearCamera2XPercentOffset; }
+
+  int getGearCamera2YPercentOffset() { return gearCamera2YPercentOffset; }
+
+  bool getGearCamera2Enable() { return gearCamera2Enable; }
 
   int getFilterLength() { return filterLength; }
 
   std::string getIPAddress() { return ipAddress; }
 
   int getIPPort() { return ipPort; }
-
-  bool getShooterCameraEnable() { return shooterCameraEnable; }
-
-  bool getGearCameraEnable() { return gearCameraEnable; }
-
-  int getShooterCameraXPercentOffset() { return shooterCameraXPercentOffset; }
-
-  int getShooterCameraYPercentOffset() { return shooterCameraXPercentOffset; }
-
-  int getGearCameraXPercentOffset() { return gearCameraXPercentOffset; }
-
-  int getGearCameraYPercentOffset() { return gearCameraYPercentOffset; }
-
-  bool getDebugEnable() { return debugEnable; }
+  
 };

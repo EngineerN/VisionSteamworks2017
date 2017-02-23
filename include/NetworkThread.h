@@ -28,11 +28,14 @@ private:
     m_filter_queue1; //!< Camera 1 Filter Queue
   std::deque<std::tuple<bool, float, float>>
     m_filter_queue2;                  //!< Camera 2 Filter Queue
+  std::deque<std::tuple<bool, float, float>>
+    m_filter_queue3;                  //!< Camera 2 Filter Queue
   const unsigned int m_filter_length; //!< Max queue length
   const bool m_debug_enable;
 
   wqueue<std::tuple<bool, float, float>>& m_queue1; //!< Network Queue
   wqueue<std::tuple<bool, float, float>>& m_queue2; //!< Network Queue
+  wqueue<std::tuple<bool, float, float>>& m_queue3; //!< Network Queue
   std::atomic<bool> m_stop;                         //!< Is the thread stopped?
   std::thread m_thread; //!< Thread to run operations
 
@@ -65,32 +68,43 @@ private:
         break;
       }
       if(!m_queue1.empty()) {
-        auto temp1 = m_queue1.remove();
-        m_filter_queue1.push_back(*temp1);
+        auto temp = m_queue1.remove();
+        m_filter_queue1.push_back(*temp);
         if(m_filter_queue1.size() > m_filter_length) {
           m_filter_queue1.pop_front();
         }
       }
 
       if(!m_queue2.empty()) {
-        auto temp2 = m_queue2.remove();
-        m_filter_queue2.push_back(*temp2);
+        auto temp = m_queue2.remove();
+        m_filter_queue2.push_back(*temp);
         if(m_filter_queue2.size() > m_filter_length) {
           m_filter_queue2.pop_front();
         }
       }
 
-      std::tuple<bool, float, float> avg1, avg2;
+      if(!m_queue3.empty()) {
+        auto temp = m_queue3.remove();
+        m_filter_queue2.push_back(*temp);
+        if(m_filter_queue3.size() > m_filter_length) {
+          m_filter_queue3.pop_front();
+        }
+      }
+
+      std::tuple<bool, float, float> avg1, avg2, avg3;
 
       avg1 = filter(m_filter_queue1);
       avg2 = filter(m_filter_queue2);
+      avg2 = filter(m_filter_queue3);
 
       {
         std::stringstream message;
         message << std::to_string((int)(std::get<1>(avg1) * 100.0f)) << " "
                 << std::to_string((int)(std::get<2>(avg1) * 100.0f)) << " "
                 << std::to_string((int)(std::get<1>(avg2) * 100.0f)) << " "
-                << std::to_string((int)(std::get<2>(avg2) * 100.0f));
+                << std::to_string((int)(std::get<2>(avg2) * 100.0f)) << " "
+                << std::to_string((int)(std::get<1>(avg3) * 100.0f)) << " "
+                << std::to_string((int)(std::get<2>(avg3) * 100.0f));
 
         if(m_debug_enable) {
           std::cout << "sending " << message.str() << std::endl;
@@ -123,10 +137,11 @@ public:
    */
   NetworkThread(wqueue<std::tuple<bool, float, float>>& queue1,
                 wqueue<std::tuple<bool, float, float>>& queue2,
+                wqueue<std::tuple<bool, float, float>>& queue3,
                 unsigned int filter_length, std::string ip_address, int port,
                 bool debug_enable)
       : m_filter_length(filter_length), m_debug_enable(debug_enable),
-        m_queue1(queue1), m_queue2(queue2), m_stop(false), m_thread() {
+        m_queue1(queue1), m_queue2(queue2), m_queue3(queue3), m_stop(false), m_thread() {
     // start networking
     s = sizeof(si_other);
     slen = sizeof(si_other);

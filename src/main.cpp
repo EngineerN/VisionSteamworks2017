@@ -21,49 +21,64 @@ int main() {
   }
 
   if(!projectConfig.getShooterCameraEnable() &&
-     !projectConfig.getGearCameraEnable()) {
-    std::cout << "No Camera configuration has been set."
+     !projectConfig.getGearCamera1Enable() &&
+     !projectConfig.getGearCamera2Enable()) {
+    std::cout << "No Camera configuration has been set. "
               << "Please enable a camera in config.json" << '\n';
   }
 
   //!< Initialize queues used
-  wqueue<cv::Mat> cameraQueue1;
-  wqueue<std::tuple<bool, float, float>> pipelineQueue1;
-  wqueue<cv::Mat> cameraQueue2;
-  wqueue<std::tuple<bool, float, float>> pipelineQueue2;
+  wqueue<cv::Mat> shooterCameraQueue;
+  wqueue<std::tuple<bool, float, float>> shooterPipelineQueue;
+  wqueue<cv::Mat> gearCamera1Queue;
+  wqueue<std::tuple<bool, float, float>> gearPipeline1Queue;
+  wqueue<cv::Mat> gearCamera2Queue;
+  wqueue<std::tuple<bool, float, float>> gearPipeline2Queue;
 
   //!< Declaration of Camera Thread
-  CameraThread cameraThread1(cameraQueue1, projectConfig.getShooterCameraID());
+  CameraThread shooterCameraThread(shooterCameraQueue, projectConfig.getShooterCameraID());
 
-  CameraThread cameraThread2(cameraQueue2, projectConfig.getGearCameraID());
+  CameraThread gearCameraThread1(gearCamera1Queue, projectConfig.getGearCamera1ID());
+
+  CameraThread gearCameraThread2(gearCamera2Queue, projectConfig.getGearCamera2ID());
 
   //!< Declaration of Pipeline Thread
-  ShooterPipelineThread pipelineThread1(
-    cameraQueue1, pipelineQueue1,
+  ShooterPipelineThread shooterPipelineThread(
+    shooterCameraQueue, shooterPipelineQueue,
     projectConfig.getShooterCameraXPercentOffset(),
     projectConfig.getShooterCameraYPercentOffset(),
     projectConfig.getDebugEnable());
 
-  GearPipelineThread pipelineThread2(
-    cameraQueue2, pipelineQueue2, projectConfig.getGearCameraXPercentOffset(),
-    projectConfig.getGearCameraYPercentOffset(),
+  GearPipelineThread gearPipelineThread1(
+    gearCamera1Queue, gearPipeline1Queue, projectConfig.getGearCamera1XPercentOffset(),
+    projectConfig.getGearCamera1YPercentOffset(),
+    projectConfig.getDebugEnable());
+
+  GearPipelineThread gearPipelineThread2(
+    gearCamera2Queue, gearPipeline2Queue, projectConfig.getGearCamera2XPercentOffset(),
+    projectConfig.getGearCamera2YPercentOffset(),
     projectConfig.getDebugEnable());
 
   //!< Declaration of Network Thread
   NetworkThread networkThread(
-    pipelineQueue1, pipelineQueue2, projectConfig.getFilterLength(),
+    shooterPipelineQueue, gearPipeline1Queue, gearPipeline2Queue, projectConfig.getFilterLength(),
     projectConfig.getIPAddress(), projectConfig.getIPPort(),
     projectConfig.getDebugEnable());
 
   //!< Start Threads
   if(projectConfig.getShooterCameraEnable()) {
-    cameraThread1.start();
-    pipelineThread1.start();
+    shooterCameraThread.start();
+    shooterPipelineThread.start();
   }
 
-  if(projectConfig.getGearCameraEnable()) {
-    cameraThread2.start();
-    pipelineThread2.start();
+  if(projectConfig.getGearCamera1Enable()) {
+    gearCameraThread1.start();
+    gearPipelineThread1.start();
+  }
+
+  if(projectConfig.getGearCamera2Enable()) {
+    gearCameraThread1.start();
+    gearPipelineThread2.start();
   }
 
   networkThread.start();
